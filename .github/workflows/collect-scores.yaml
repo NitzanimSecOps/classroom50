@@ -19,10 +19,11 @@ on:
       classroom:
         description: "Classroom short-name (leave blank to collect all)"
         required: false
-  schedule:
-    # Nightly autopilot. Comment out the next line if you only want
-    # manual triggers.
-    - cron: "17 4 * * *"
+  # schedule DISABLED (Plan B): codo_sync replaces collect_scores and Codo is the
+  # gradebook, so scores.json must not auto-regenerate in the PUBLIC config repo.
+  # Manual "Collect now" (workflow_dispatch) still works if ever needed.
+  # schedule:
+  #   - cron: "17 4 * * *"
 
 permissions:
   contents: write       # write scores.json + commit
