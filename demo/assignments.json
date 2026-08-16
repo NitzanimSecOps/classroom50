@@ -1,4 +1,26 @@
 {
   "schema": "classroom50/assignments/v1",
-  "assignments": []
+  "assignments": [
+    {
+      "slug": "smoke",
+      "name": "Smoke",
+      "mode": "individual",
+      "autograder": "default",
+      "tests": [
+        {
+          "name": "solution.py exists",
+          "type": "run",
+          "run": "test -f solution.py",
+          "points": 1
+        },
+        {
+          "name": "says hello",
+          "type": "run",
+          "run": "grep -qi hello solution.py",
+          "points": 1
+        }
+      ],
+      "feedback_pr": true
+    }
+  ]
 }
