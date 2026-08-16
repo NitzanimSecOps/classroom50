@@ -1,0 +1,25 @@
+{
+  "schema": "classroom50/classroom/v1",
+  "name": "Demo",
+  "short_name": "demo",
+  "term": "Fall-2026",
+  "org": "NitzanimSecOps",
+  "team": {
+    "id": 19000713,
+    "slug": "classroom50-demo"
+  },
+  "teams": {
+    "teacher": {
+      "id": 19000714,
+      "slug": "classroom50-demo-teacher"
+    },
+    "hta": {
+      "id": 19000715,
+      "slug": "classroom50-demo-hta"
+    },
+    "ta": {
+      "id": 19000716,
+      "slug": "classroom50-demo-ta"
+    }
+  }
+}
