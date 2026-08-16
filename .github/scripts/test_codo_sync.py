@@ -59,6 +59,28 @@ def test_dry_run_skips_submit():
         (codo_sync.team_members, codo_sync.repo_results, codo_sync.assignment_slugs) = saved
 
 
+def test_group_credits_owner_and_rostered_collaborators():
+    group = {**RESULT, "assignment": "groupex", "assignment_type": "group", "owner": "founder",
+             "submission": "submit/2026-08-16T10-00-00Z-abc1234"}
+    saved = (codo_sync.team_members, codo_sync.repo_results, codo_sync.assignment_slugs,
+             codo_sync.repo_collaborators, codo_sync.submit)
+    codo_sync.team_members = lambda o, c, t: ["founder", "alice", "bob"]          # the roster
+    codo_sync.assignment_slugs = lambda r, c: ["groupex"]
+    codo_sync.repo_results = lambda o, repo, t: (iter([group]) if repo == "demo-groupex-founder" else iter([]))
+    codo_sync.repo_collaborators = lambda o, repo, t: ["founder", "alice", "charlie"]  # charlie: not rostered
+    submitted = []
+    codo_sync.submit = lambda api, cid, p, key: (submitted.append(p["github_login"]), (200, {"status": "ok"}))[1]
+    try:
+        ok, fail = codo_sync.sync_classroom(".", "NitzanimSecOps", "demo", "https://b", "k", "tok")
+        # founder (owner) + alice (rostered collaborator); NOT charlie (not rostered),
+        # NOT bob (rostered but not a collaborator on this repo).
+        assert ok == 2 and fail == 0, (ok, fail, submitted)
+        assert set(submitted) == {"founder", "alice"}, submitted
+    finally:
+        (codo_sync.team_members, codo_sync.repo_results, codo_sync.assignment_slugs,
+         codo_sync.repo_collaborators, codo_sync.submit) = saved
+
+
 if __name__ == "__main__":
     tests = [v for k, v in sorted(globals().items()) if k.startswith("test_") and callable(v)]
     failed = 0

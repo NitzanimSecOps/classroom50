@@ -69,6 +69,35 @@ def team_members(org, classroom, token):
         raise
 
 
+def repo_collaborators(org, repo, token):
+    return [c["login"] for c in _gh_paged(f"/repos/{org}/{repo}/collaborators", token)]
+
+
+def credited_logins(org, repo, result, roster, token):
+    """Who to credit for this result. Individual → the owner. Group → the owner PLUS
+    every repo collaborator on the roster (case-insensitive), matching classroom50's
+    collect_scores: crediting is gated on roster membership, not collaborator
+    permission; a non-rostered collaborator (staff/org-owner) is never credited. On a
+    collaborator-read failure, degrade to owner-only. `roster` is a lowercased set."""
+    owner = result.get("owner", "")
+    if (result.get("assignment_type") or "").lower() != "group":
+        return [owner] if owner else []
+    try:
+        collabs = repo_collaborators(org, repo, token)
+    except urllib.error.HTTPError:
+        print(f"::warning::{repo}: can't read collaborators; crediting owner only")
+        return [owner]
+    out, seen, ownerk = [], set(), owner.lower()
+    for login in [owner, *collabs]:
+        k = login.lower()
+        if k != ownerk and k not in roster:
+            continue
+        if k not in seen:
+            seen.add(k)
+            out.append(login)
+    return out
+
+
 def repo_results(org, repo, token):
     """Yield each result.json (dict) from `repo`'s submit/* releases. A 404 means
     the student never accepted/submitted — not an error."""
@@ -108,12 +137,13 @@ def graded_sha(result):
     return sub.rsplit("-", 1)[-1] if "-" in sub else ""
 
 
-def to_payload(result):
+def to_payload(result, login=None):
+    """`login` overrides the credited student (group members); defaults to owner."""
     tests = [{"name": t.get("test-name") or t.get("name") or "?",
               "passed": bool(t.get("passed")),
               "score": int(t.get("score", 0) or 0)}
              for t in (result.get("tests") or [])]
-    return {"github_login": result["owner"], "slug": result["assignment"],
+    return {"github_login": login or result["owner"], "slug": result["assignment"],
             "release_tag": result["submission"],
             "result": {"tests": tests, "code": "", "graded_sha": graded_sha(result),
                        "committed_time": result.get("datetime", "")}}
@@ -133,28 +163,34 @@ def submit(api_base, class_id, payload, key):
 
 # ---- orchestration ----------------------------------------------------------
 def sync_classroom(root, org, classroom, api_base, key, token, dry_run=False):
-    members = team_members(org, classroom, token)
+    roster_names = team_members(org, classroom, token)   # the secret team = the roster
+    roster = {m.lower() for m in roster_names}
     slugs = assignment_slugs(root, classroom)
     ok = fail = 0
-    for user in members:
+    # Iterate the roster × assignments. A group assignment's repo lives under the
+    # founder only, so a teammate's own repo 404s (skipped) — they're instead credited
+    # when we process the founder's repo, via credited_logins (owner + rostered collabs).
+    for user in roster_names:
         for slug in slugs:
             repo = f"{classroom}-{slug}-{user}"
             for result in repo_results(org, repo, token):
-                payload = to_payload(result)
-                if dry_run:
-                    print(f"  DRY {classroom}/{slug} {user} {payload['release_tag']}")
-                    ok += 1
-                    continue
-                status, body = submit(api_base, classroom, payload, key)
-                line = f"{classroom}/{slug} {user} {payload['release_tag']} -> {status} {(body or {}).get('status')}"
-                if status == 200:
-                    ok += 1
-                    print(f"  ok  {line}")
-                else:
-                    fail += 1
-                    print(f"::warning::{line}")
+                for login in credited_logins(org, repo, result, roster, token):
+                    payload = to_payload(result, login=login)
+                    tag = payload["release_tag"]
+                    if dry_run:
+                        print(f"  DRY {classroom}/{slug} {login} {tag}")
+                        ok += 1
+                        continue
+                    status, body = submit(api_base, classroom, payload, key)
+                    line = f"{classroom}/{slug} {login} {tag} -> {status} {(body or {}).get('status')}"
+                    if status == 200:
+                        ok += 1
+                        print(f"  ok  {line}")
+                    else:
+                        fail += 1
+                        print(f"::warning::{line}")
     print(f"{classroom}: {ok} submitted, {fail} failed "
-          f"({len(members)} students x {len(slugs)} assignments)")
+          f"({len(roster_names)} students x {len(slugs)} assignments)")
     return ok, fail
 
 
