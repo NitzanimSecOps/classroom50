@@ -66,6 +66,10 @@ def team_members(org, classroom, token):
         if e.code == 404:
             print(f"::warning::no secret team classroom50-{classroom}; skipping")
             return []
+        if e.code == 403:
+            print(f"::error::403 reading team classroom50-{classroom} members — the token "
+                  f"(CLASSROOM50_SERVICE_TOKEN) needs org 'Members: read' (fine-grained PAT) "
+                  f"or 'read:org' (classic). It reads the secret team as the Plan-B roster.")
         raise
 
 
