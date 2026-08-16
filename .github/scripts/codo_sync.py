@@ -30,18 +30,38 @@ _SHA_RE = re.compile(r"/commit/([0-9a-fA-F]{7,40})")
 
 
 # ---- GitHub reads (secret team + student repo releases) ----------------------
+def _headers(token, accept="application/vnd.github+json"):
+    return {"Authorization": f"Bearer {token}", "Accept": accept,
+            "X-GitHub-Api-Version": "2022-11-28", "User-Agent": "classroom50-codo-sync"}
+
+
 def _gh(path, token, accept="application/vnd.github+json"):
-    req = urllib.request.Request(GH_API + path, headers={
-        "Authorization": f"Bearer {token}", "Accept": accept,
-        "X-GitHub-Api-Version": "2022-11-28", "User-Agent": "classroom50-codo-sync"})
+    req = urllib.request.Request(GH_API + path, headers=_headers(token, accept))
     with urllib.request.urlopen(req, timeout=30) as r:
         return r.read()
 
 
+def _gh_paged(path, token):
+    """GET a paginated list endpoint, following `Link: rel=next`. Returns all items,
+    so large rosters / release histories aren't silently truncated at 100."""
+    sep = "&" if "?" in path else "?"
+    url = GH_API + path + f"{sep}per_page=100"
+    items = []
+    while url:
+        req = urllib.request.Request(url, headers=_headers(token))
+        with urllib.request.urlopen(req, timeout=30) as r:
+            items.extend(json.loads(r.read().decode()))
+            link = r.headers.get("Link", "") or ""
+        url = None
+        for part in link.split(","):
+            if 'rel="next"' in part and "<" in part and ">" in part:
+                url = part[part.find("<") + 1:part.find(">")]
+    return items
+
+
 def team_members(org, classroom, token):
     try:
-        data = json.loads(_gh(f"/orgs/{org}/teams/classroom50-{classroom}/members?per_page=100", token))
-        return [m["login"] for m in data]
+        return [m["login"] for m in _gh_paged(f"/orgs/{org}/teams/classroom50-{classroom}/members", token)]
     except urllib.error.HTTPError as e:
         if e.code == 404:
             print(f"::warning::no secret team classroom50-{classroom}; skipping")
@@ -53,7 +73,7 @@ def repo_results(org, repo, token):
     """Yield each result.json (dict) from `repo`'s submit/* releases. A 404 means
     the student never accepted/submitted — not an error."""
     try:
-        releases = json.loads(_gh(f"/repos/{org}/{repo}/releases?per_page=100", token))
+        releases = _gh_paged(f"/repos/{org}/{repo}/releases", token)
     except urllib.error.HTTPError as e:
         if e.code == 404:
             return
