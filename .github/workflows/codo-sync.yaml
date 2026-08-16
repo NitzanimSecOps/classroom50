@@ -1,0 +1,34 @@
+name: Codo Sync
+
+# Push graded submissions to the autograder backend (which forwards to Codo).
+# Trusted: holds the backend collector key. Run after collect-scores has refreshed
+# each <classroom>/scores.json. Idempotent on the backend, so safe to re-run.
+
+on:
+  workflow_dispatch:
+    inputs:
+      classroom:
+        description: "single classroom to sync (blank = all)"
+        required: false
+        default: ""
+  # Optional: run nightly after collect-scores. Uncomment to enable.
+  # schedule:
+  #   - cron: "30 5 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Sync graded submissions to the Codo backend
+        env:
+          CODO_API_BASE: ${{ vars.CODO_API_BASE }}
+          CODO_COLLECTOR_KEY: ${{ secrets.CODO_COLLECTOR_KEY }}
+          CLASSROOM_FILTER: ${{ inputs.classroom }}
+        run: python .github/scripts/codo_sync.py .
