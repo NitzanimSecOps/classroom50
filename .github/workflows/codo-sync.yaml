@@ -30,5 +30,8 @@ jobs:
         env:
           CODO_API_BASE: ${{ vars.CODO_API_BASE }}
           CODO_COLLECTOR_KEY: ${{ secrets.CODO_COLLECTOR_KEY }}
+          # Reads the secret team (roster) + student repo releases (grades) — the same
+          # fine-grained PAT collect_scores uses. No roster.csv/scores.json involved.
+          GH_TOKEN: ${{ secrets.CLASSROOM50_SERVICE_TOKEN }}
           CLASSROOM_FILTER: ${{ inputs.classroom }}
         run: python .github/scripts/codo_sync.py .

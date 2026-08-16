@@ -1,21 +1,21 @@
 #!/usr/bin/env python3
 """Codo-sync: push graded classroom50 submissions to the autograder backend.
 
-Trusted control-plane step (a sibling to collect_scores.py). Reads each
-`<classroom>/scores.json` (already produced by collect_scores.py) and POSTs every
-submission to the backend's `/codo-submit`, which resolves the identity binding
-(github_login -> codo_uid) and records the Codo submission. Idempotent on the backend
-per (owner, slug, submission), so re-runs are safe; the onward Codo POST is the
-backend's job. Never runs in a student repo — this holds the backend key.
-
-classroom50 `result.json` v1 already carries owner/assignment/submission/datetime/
-tests, so no git is needed here. Student `code` is left empty for now (grade + tests
-are what Codo records); fetching per-submission code is a later refinement.
+Plan B — team + Release driven, so NO roster.csv / scores.json ever land in the
+public config repo. The roster is the classroom's **secret GitHub team**
+(`classroom50-<classroom>`, private membership); grades live in Codo, so we read
+each graded `result.json` straight from the student repos' `submit/*` **Releases**
+(no `collect_scores`, no `scores.json`). For each result we POST to the backend's
+`/codo-submit` (X-Collector-Key), which resolves the identity binding and records the
+Codo submission. Idempotent on the backend per (owner, slug, submission).
 
 Env (set by codo-sync.yaml):
-  CODO_API_BASE       backend base URL, e.g. https://gradfn....azurewebsites.net
-  CODO_COLLECTOR_KEY  shared key the backend accepts as X-Collector-Key (Actions secret)
-  CLASSROOM_FILTER    optional single-classroom limit
+  CODO_API_BASE           backend base URL, e.g. https://gradfn....azurewebsites.net
+  CODO_COLLECTOR_KEY      shared key the backend accepts as X-Collector-Key (secret)
+  GH_TOKEN                PAT that can read the secret team + student repo releases
+                          (reuse CLASSROOM50_SERVICE_TOKEN)
+  CLASSROOM_FILTER        optional single-classroom limit
+  DRY_RUN=1               walk + print payloads, skip the POST
 """
 import json
 import os
@@ -25,9 +25,61 @@ import sys
 import urllib.error
 import urllib.request
 
+GH_API = os.environ.get("GITHUB_API_URL", "https://api.github.com")
 _SHA_RE = re.compile(r"/commit/([0-9a-fA-F]{7,40})")
 
 
+# ---- GitHub reads (secret team + student repo releases) ----------------------
+def _gh(path, token, accept="application/vnd.github+json"):
+    req = urllib.request.Request(GH_API + path, headers={
+        "Authorization": f"Bearer {token}", "Accept": accept,
+        "X-GitHub-Api-Version": "2022-11-28", "User-Agent": "classroom50-codo-sync"})
+    with urllib.request.urlopen(req, timeout=30) as r:
+        return r.read()
+
+
+def team_members(org, classroom, token):
+    try:
+        data = json.loads(_gh(f"/orgs/{org}/teams/classroom50-{classroom}/members?per_page=100", token))
+        return [m["login"] for m in data]
+    except urllib.error.HTTPError as e:
+        if e.code == 404:
+            print(f"::warning::no secret team classroom50-{classroom}; skipping")
+            return []
+        raise
+
+
+def repo_results(org, repo, token):
+    """Yield each result.json (dict) from `repo`'s submit/* releases. A 404 means
+    the student never accepted/submitted — not an error."""
+    try:
+        releases = json.loads(_gh(f"/repos/{org}/{repo}/releases?per_page=100", token))
+    except urllib.error.HTTPError as e:
+        if e.code == 404:
+            return
+        raise
+    for rel in releases:
+        if not str(rel.get("tag_name", "")).startswith("submit/"):
+            continue
+        for asset in rel.get("assets", []):
+            if asset.get("name") == "result.json":
+                raw = _gh(f"/repos/{org}/{repo}/releases/assets/{asset['id']}", token,
+                          accept="application/octet-stream")
+                try:
+                    yield json.loads(raw.decode())
+                except Exception:  # noqa: BLE001
+                    print(f"::warning::{repo}: unparseable result.json in {rel.get('tag_name')}")
+
+
+def assignment_slugs(root, classroom):
+    path = pathlib.Path(root) / classroom / "assignments.json"
+    if not path.exists():
+        return []
+    data = json.loads(path.read_text(encoding="utf-8"))
+    return [a["slug"] for a in (data.get("assignments") or []) if isinstance(a, dict) and a.get("slug")]
+
+
+# ---- result.json -> /codo-submit body ---------------------------------------
 def graded_sha(result):
     m = _SHA_RE.search(result.get("commit") or "")
     if m:
@@ -47,15 +99,6 @@ def to_payload(result):
                        "committed_time": result.get("datetime", "")}}
 
 
-def iter_submissions(scores):
-    for slug, bucket in (scores.get("assignments") or {}).items():
-        for entry in (bucket.get("entries") or []):
-            for sub in (entry.get("submissions") or []):
-                r = dict(sub)
-                r.setdefault("assignment", slug)
-                yield r
-
-
 def submit(api_base, class_id, payload, key):
     url = f"{api_base.rstrip('/')}/api/classes/{class_id}/codo-submit"
     req = urllib.request.Request(
@@ -68,40 +111,52 @@ def submit(api_base, class_id, payload, key):
         return e.code, json.loads(e.read().decode() or "null")
 
 
-def sync_classroom(root, classroom, api_base, key):
-    path = pathlib.Path(root) / classroom / "scores.json"
-    if not path.exists():
-        print(f"::warning::{classroom}: no scores.json; skipping")
-        return 0, 0
-    scores = json.loads(path.read_text(encoding="utf-8"))
+# ---- orchestration ----------------------------------------------------------
+def sync_classroom(root, org, classroom, api_base, key, token, dry_run=False):
+    members = team_members(org, classroom, token)
+    slugs = assignment_slugs(root, classroom)
     ok = fail = 0
-    for result in iter_submissions(scores):
-        status, body = submit(api_base, classroom, to_payload(result), key)
-        line = (f"{classroom}/{result.get('assignment')} {result.get('owner')} "
-                f"{result.get('submission')} -> {status} {(body or {}).get('status')}")
-        if status == 200:
-            ok += 1
-            print(f"  ok  {line}")
-        else:
-            fail += 1
-            print(f"::warning::{line}")
-    print(f"{classroom}: {ok} submitted, {fail} failed")
+    for user in members:
+        for slug in slugs:
+            repo = f"{classroom}-{slug}-{user}"
+            for result in repo_results(org, repo, token):
+                payload = to_payload(result)
+                if dry_run:
+                    print(f"  DRY {classroom}/{slug} {user} {payload['release_tag']}")
+                    ok += 1
+                    continue
+                status, body = submit(api_base, classroom, payload, key)
+                line = f"{classroom}/{slug} {user} {payload['release_tag']} -> {status} {(body or {}).get('status')}"
+                if status == 200:
+                    ok += 1
+                    print(f"  ok  {line}")
+                else:
+                    fail += 1
+                    print(f"::warning::{line}")
+    print(f"{classroom}: {ok} submitted, {fail} failed "
+          f"({len(members)} students x {len(slugs)} assignments)")
     return ok, fail
 
 
 def main(argv=None):
     argv = sys.argv[1:] if argv is None else argv
+    org = os.environ.get("GITHUB_REPOSITORY_OWNER") or os.environ.get("ORG")
     api_base = os.environ.get("CODO_API_BASE")
     key = os.environ.get("CODO_COLLECTOR_KEY")
-    if not api_base or not key:
-        print("::error::CODO_API_BASE and CODO_COLLECTOR_KEY are required")
+    token = os.environ.get("GH_TOKEN")
+    dry = os.environ.get("DRY_RUN") == "1"
+    need = [k for k, v in [("ORG/GITHUB_REPOSITORY_OWNER", org), ("GH_TOKEN", token),
+                           ("CODO_API_BASE", api_base if not dry else "x"),
+                           ("CODO_COLLECTOR_KEY", key if not dry else "x")] if not v]
+    if need:
+        print(f"::error::missing required env: {', '.join(need)}")
         return 1
     root = pathlib.Path(argv[0]) if argv else pathlib.Path.cwd()
     only = (os.environ.get("CLASSROOM_FILTER") or "").strip()
-    classrooms = [only] if only else sorted(p.parent.name for p in root.glob("*/scores.json"))
+    classrooms = [only] if only else sorted(p.parent.name for p in root.glob("*/assignments.json"))
     total_ok = total_fail = 0
     for c in classrooms:
-        ok, fail = sync_classroom(root, c, api_base, key)
+        ok, fail = sync_classroom(root, org, c, api_base, key, token, dry_run=dry)
         total_ok += ok
         total_fail += fail
     print(f"\ncodo-sync: {total_ok} submitted, {total_fail} failed "
