@@ -12,7 +12,11 @@
           "autograder"
         ]
       },
-      "template": "NitzanimSecOps/secops-starter",
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-starter",
+        "branch": "main"
+      },
       "feedback_pr": true,
       "_exercise_id": "1.1.0.7",
       "_tests": 7
@@ -28,7 +32,11 @@
           "autograder"
         ]
       },
-      "template": "NitzanimSecOps/secops-starter",
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-starter",
+        "branch": "main"
+      },
       "feedback_pr": true,
       "_exercise_id": "1.99.0.2",
       "_tests": 5
@@ -44,7 +52,11 @@
           "autograder"
         ]
       },
-      "template": "NitzanimSecOps/secops-starter",
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-starter",
+        "branch": "main"
+      },
       "feedback_pr": true,
       "_exercise_id": "2.2.1.1",
       "_tests": 10
@@ -60,7 +72,11 @@
           "autograder"
         ]
       },
-      "template": "NitzanimSecOps/secops-starter",
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-starter",
+        "branch": "main"
+      },
       "feedback_pr": true,
       "_exercise_id": "2.2.1.2",
       "_tests": 22
@@ -76,7 +92,11 @@
           "autograder"
         ]
       },
-      "template": "NitzanimSecOps/secops-starter",
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-starter",
+        "branch": "main"
+      },
       "feedback_pr": true,
       "_exercise_id": "2.2.1.3",
       "_tests": 15
@@ -92,7 +112,11 @@
           "autograder"
         ]
       },
-      "template": "NitzanimSecOps/secops-starter",
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-starter",
+        "branch": "main"
+      },
       "feedback_pr": true,
       "_exercise_id": "2.2.1.4",
       "_tests": 7
@@ -108,7 +132,11 @@
           "autograder"
         ]
       },
-      "template": "NitzanimSecOps/secops-starter",
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-starter",
+        "branch": "main"
+      },
       "feedback_pr": true,
       "_exercise_id": "3.0.0.1",
       "_tests": 7
@@ -124,7 +152,11 @@
           "autograder"
         ]
       },
-      "template": "NitzanimSecOps/secops-starter",
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-starter",
+        "branch": "main"
+      },
       "feedback_pr": true,
       "_exercise_id": "3.0.0.2",
       "_tests": 8
@@ -140,7 +172,11 @@
           "autograder"
         ]
       },
-      "template": "NitzanimSecOps/secops-starter",
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-starter",
+        "branch": "main"
+      },
       "feedback_pr": true,
       "_exercise_id": "3.0.0.3",
       "_tests": 11
@@ -156,7 +192,11 @@
           "autograder"
         ]
       },
-      "template": "NitzanimSecOps/secops-starter",
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-starter",
+        "branch": "main"
+      },
       "feedback_pr": true,
       "_exercise_id": "3.1.0.1",
       "_tests": 6
@@ -172,7 +212,11 @@
           "autograder"
         ]
       },
-      "template": "NitzanimSecOps/secops-starter",
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-starter",
+        "branch": "main"
+      },
       "feedback_pr": true,
       "_exercise_id": "3.1.0.2",
       "_tests": 7
@@ -188,7 +232,11 @@
           "autograder"
         ]
       },
-      "template": "NitzanimSecOps/secops-starter",
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-starter",
+        "branch": "main"
+      },
       "feedback_pr": true,
       "_exercise_id": "3.1.0.3",
       "_tests": 13
@@ -204,7 +252,11 @@
           "autograder"
         ]
       },
-      "template": "NitzanimSecOps/secops-starter",
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-starter",
+        "branch": "main"
+      },
       "feedback_pr": true,
       "_exercise_id": "3.1.0.4",
       "_tests": 4
@@ -220,7 +272,11 @@
           "autograder"
         ]
       },
-      "template": "NitzanimSecOps/secops-starter",
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-starter",
+        "branch": "main"
+      },
       "feedback_pr": true,
       "_exercise_id": "3.1.0.5",
       "_tests": 15
