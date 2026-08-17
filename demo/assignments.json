@@ -6,6 +6,12 @@
       "name": "Smoke",
       "mode": "individual",
       "autograder": "default",
+      "runtime": {
+        "runs-on": [
+          "self-hosted",
+          "autograder"
+        ]
+      },
       "tests": [
         {
           "name": "solution.py exists",
