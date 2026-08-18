@@ -4,9 +4,14 @@ every exercise, generated into each assignment bundle by apply_classroom50.py.
 
 How the runner invokes us (runner.py run_entrypoint / finalize_result):
   * `python <bundle>/autograder.py` with **cwd = the student checkout**
-  * we must write `result.json` into cwd and exit 0
-  * the runner overwrites owner / assignment_type / datetime / graded_at afterwards,
-    so we don't attempt to author those authoritatively
+  * we must write a COMPLETE v1 `result.json` into cwd and exit 0
+  * the runner stamps ONLY `owner` / `assignment_type` / `datetime` / `graded_at` /
+    `submitted_by` afterwards (those are runner-authoritative). Everything else it
+    *validates* rather than authors — so we MUST write `submission` / `commit` /
+    `release` / `review`, or finalize_result rejects the result ("'submission' must be
+    a 'submit/*' string") and no Release is published. We build them from the env the
+    runner passes (SUBMISSION_TAG, GITHUB_REPOSITORY, GITHUB_SHA, GITHUB_SERVER_URL),
+    matching runner.py's commit_url / release_url formats exactly.
 
 Why the tests live here and not in the student repo: a declarative tests.json can only
 run commands with cwd=workspace and is never told where the bundle was extracted, so
@@ -24,6 +29,7 @@ import pathlib
 import subprocess
 import sys
 import tempfile
+import urllib.parse
 
 BUNDLE = pathlib.Path(__file__).resolve().parent
 WORKSPACE = pathlib.Path.cwd()
@@ -93,10 +99,26 @@ def main() -> int:
         rows = [{"test-name": "pytest collection", "passed": False,
                  "score": 0, "max-score": points}]
 
+    # Runner-authoritative fields (owner/assignment_type/datetime/graded_at/
+    # submitted_by) are stamped by finalize_result. But submission/commit/release/
+    # review are only VALIDATED, not authored, so we must set them from the runner's
+    # env. Formats mirror runner.py:commit_url / release_url; `review` falls back to
+    # the commit view (validate_result only needs a non-empty string).
+    server = os.environ.get("GITHUB_SERVER_URL", "https://github.com").rstrip("/")
+    repo = os.environ.get("GITHUB_REPOSITORY", "")
+    sha = os.environ.get("GITHUB_SHA", "")
+    submission = os.environ.get("SUBMISSION_TAG", "")
+    commit_url = f"{server}/{repo}/commit/{sha}"
+    release_url = f"{server}/{repo}/releases/tag/{urllib.parse.quote(submission, safe='')}"
+
     result = {
         "schema": "classroom50/result/v1",
         "classroom": META["classroom"],
         "assignment": META["slug"],
+        "submission": submission,
+        "commit": commit_url,
+        "release": release_url,
+        "review": commit_url,
         "tests": rows,
         "score": sum(r["score"] for r in rows),
         "max-score": sum(r["max-score"] for r in rows),
