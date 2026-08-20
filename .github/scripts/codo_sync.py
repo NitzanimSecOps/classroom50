@@ -165,6 +165,29 @@ def graded_sha(result):
     return sub.rsplit("-", 1)[-1] if "-" in sub else ""
 
 
+def submission_code(result):
+    """The `code` blob Codo stores for the submission. Codo keeps `code` as a
+    {filename: contents} object (an empty string 500s the json column), and its editor
+    shows those files to a teacher opening the submission. The GitHub repo IS the real
+    submission, so instead of null we put a single pointer file there — giving the
+    teacher a click-through to the repo/commit right from the Codo submission view.
+    Returns None if we can't derive the repo (then the backend sends null, as before)."""
+    repo = (result.get("commit") or "").split("/commit/")[0]
+    if not repo:
+        return None
+    tests = result.get("tests") or []
+    passed = sum(1 for t in tests if t.get("passed"))
+    body = (
+        "# This exercise is graded on GitHub - the repository IS the submission.\n"
+        f"# repo:    {repo}\n"
+        f"# commit:  {graded_sha(result)}\n"
+        f"# release: {result.get('release', '')}\n"
+        f"# result:  {passed}/{len(tests)} tests passed "
+        "(full log in the repo's Actions run)\n"
+    )
+    return {"submission.py": body}
+
+
 def to_payload(result, login=None):
     """`login` overrides the credited student (group members); defaults to owner."""
     tests = [{"name": t.get("test-name") or t.get("name") or "?",
@@ -173,7 +196,8 @@ def to_payload(result, login=None):
              for t in (result.get("tests") or [])]
     return {"github_login": login or result["owner"], "slug": result["assignment"],
             "release_tag": result["submission"],
-            "result": {"tests": tests, "code": "", "graded_sha": graded_sha(result),
+            "result": {"tests": tests, "code": submission_code(result),
+                       "graded_sha": graded_sha(result),
                        "committed_time": result.get("datetime", "")}}
 
 
