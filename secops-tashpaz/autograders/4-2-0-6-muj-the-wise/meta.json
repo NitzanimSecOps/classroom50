@@ -4,7 +4,15 @@
   "exercise_id": "4.2.0.6",
   "points_per_test": 1,
   "timeout": 300,
-  "tests": [],
+  "tests": [
+    "test_init_binds_socket_to_the_interface",
+    "test_send_builds_a_wellformed_chat_frame",
+    "test_parse_extracts_nickname_and_message",
+    "test_parse_ignores_our_own_echo",
+    "test_parse_ignores_trailing_padding",
+    "test_parse_returns_none_on_truncated_message",
+    "test_sent_frame_is_parseable_by_a_peer"
+  ],
   "solution_files": [
     "chat.py"
   ]

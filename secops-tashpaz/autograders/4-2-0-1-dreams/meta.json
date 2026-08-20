@@ -4,6 +4,12 @@
   "exercise_id": "4.2.0.1",
   "points_per_test": 1,
   "timeout": 300,
-  "tests": [],
+  "tests": [
+    "test_stores_raw_data",
+    "test_parses_src_mac",
+    "test_parses_dst_mac",
+    "test_parses_ethertype",
+    "test_parses_payload"
+  ],
   "solution_files": []
 }

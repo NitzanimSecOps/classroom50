@@ -4,7 +4,15 @@
   "exercise_id": "3.1.0.6",
   "points_per_test": 1,
   "timeout": 300,
-  "tests": [],
+  "tests": [
+    "TestPermissionAuditor.test_audit_flags_executable_data_file",
+    "TestPermissionAuditor.test_audit_flags_group_or_other_writable",
+    "TestPermissionAuditor.test_audit_leaves_safe_file_alone",
+    "TestPermissionAuditor.test_harden_is_complete",
+    "TestPermissionAuditor.test_harden_keeps_directories_traversable",
+    "TestPermissionAuditor.test_harden_leaves_no_executable_data_files",
+    "TestPermissionAuditor.test_harden_leaves_nothing_writable_by_group_or_other"
+  ],
   "solution_files": [
     "permission_auditor.py",
     "warehouse.py"

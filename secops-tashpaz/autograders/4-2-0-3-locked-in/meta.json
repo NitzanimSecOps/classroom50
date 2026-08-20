@@ -4,6 +4,15 @@
   "exercise_id": "4.2.0.3",
   "points_per_test": 1,
   "timeout": 300,
-  "tests": [],
+  "tests": [
+    "test_port_is_built_from_a_name",
+    "test_mac_entry_exposes_named_fields",
+    "test_dataclass_equality_is_by_value",
+    "test_switch_ports_are_port_objects",
+    "test_learning_stores_a_mac_entry",
+    "test_moved_host_leaves_one_entry",
+    "test_unknown_unicast_still_floods",
+    "test_known_unicast_still_forwards_to_learned_port"
+  ],
   "solution_files": []
 }

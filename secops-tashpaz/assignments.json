@@ -122,7 +122,7 @@
       "_tests": 7
     },
     {
-      "slug": "3-0-0-1-what-to-except-when-you-re-excepting",
+      "slug": "3-0-0-1-what-to-except-when-you-re",
       "name": "3.0.0.1 What to Except When You're Excepting",
       "mode": "individual",
       "autograder": "default",
@@ -134,7 +134,7 @@
       },
       "template": {
         "owner": "NitzanimSecOps",
-        "repo": "secops-3-0-0-1-what-to-except-when-you-re-excepting",
+        "repo": "secops-3-0-0-1-what-to-except-when-you-re",
         "branch": "main"
       },
       "feedback_pr": true,
@@ -260,6 +260,106 @@
       "feedback_pr": true,
       "_exercise_id": "3.1.0.4",
       "_tests": 4
+    },
+    {
+      "slug": "3-1-0-6-conflict-resolution",
+      "name": "3.1.0.6 Conflict Resolution",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": [
+          "self-hosted",
+          "autograder"
+        ]
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-3-1-0-6-conflict-resolution",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "3.1.0.6",
+      "_tests": 7
+    },
+    {
+      "slug": "4-2-0-1-dreams",
+      "name": "4.2.0.1 Dreams",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": [
+          "self-hosted",
+          "autograder"
+        ]
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-4-2-0-1-dreams",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "4.2.0.1",
+      "_tests": 5
+    },
+    {
+      "slug": "4-2-0-2-you-better-work",
+      "name": "4.2.0.2 You Better Work",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": [
+          "self-hosted",
+          "autograder"
+        ]
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-4-2-0-2-you-better-work",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "4.2.0.2",
+      "_tests": 6
+    },
+    {
+      "slug": "4-2-0-3-locked-in",
+      "name": "4.2.0.3 Locked In",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": [
+          "self-hosted",
+          "autograder"
+        ]
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-4-2-0-3-locked-in",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "4.2.0.3",
+      "_tests": 8
+    },
+    {
+      "slug": "4-2-0-6-muj-the-wise",
+      "name": "4.2.0.6 Muj the Wise",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": [
+          "self-hosted",
+          "autograder"
+        ]
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-4-2-0-6-muj-the-wise",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "4.2.0.6",
+      "_tests": 7
     }
   ]
 }
