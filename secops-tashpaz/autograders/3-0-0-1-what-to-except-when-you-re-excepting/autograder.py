@@ -52,64 +52,35 @@ def ensure_deps() -> None:
                    check=False)
 
 
-def solution_root() -> pathlib.Path:
-    """Directory to put on sys.path so the bundled tests can import the student's
-    `solutions.suite_X.exercise_Y...` package.
-
-    - nested (default): the student repo already carries the full solutions/ tree, so
-      the package resolves straight from the workspace.
-    - flat: the per-exercise repo has the exercise's file(s) at its ROOT (nicer for
-      students — one file to edit, no deep path). We reconstruct the package the tests
-      import in a temp dir and copy the student's flat file(s) into it. tashpaz + the
-      tests are unchanged (the bridge, not a test rewrite)."""
-    if META.get("layout") != "flat":
-        return WORKSPACE
-    pkg_rel = META.get("package")               # e.g. "solutions/suite_2_2_1/exercise_1"
-    if not pkg_rel:
-        return WORKSPACE
-    files = META.get("solution_files") or []
-    # Robustness across the flat rollout: if the repo has no file at its root but DOES
-    # already carry the nested package (a student still on an older nested template),
-    # grade it nested rather than reconstructing an empty package.
-    if not any((WORKSPACE / f).is_file() for f in files) and (WORKSPACE / pkg_rel).is_dir():
-        return WORKSPACE
-    root = pathlib.Path(tempfile.mkdtemp(prefix="c50-flat-"))
-    parts = pathlib.Path(pkg_rel).parts
-    for i in range(1, len(parts) + 1):          # make each level a package
-        level = root.joinpath(*parts[:i])
-        level.mkdir(parents=True, exist_ok=True)
-        (level / "__init__.py").touch()
-    pkg = root.joinpath(*parts)
-    for name in (META.get("solution_files") or []):
-        src = WORKSPACE / name
-        if src.is_file():
-            shutil.copy2(src, pkg / name)
-    return root
+def grading_dir() -> pathlib.Path:
+    """A temp dir holding the student's FLAT solution file(s) + the bundled tests, so
+    pytest runs them as flat siblings — `from solution import …` / `from warehouse import
+    …` (tests) and the solution's own `from warehouse_setup import …` all resolve. Flat
+    model: nothing to reconstruct, no package. The student repo is flat (files at root =
+    the workspace), so we copy the workspace's root .py + the hidden bundle tests together."""
+    d = pathlib.Path(tempfile.mkdtemp(prefix="c50-grade-"))
+    for f in WORKSPACE.glob("*.py"):        # the student's flat code (repo root)
+        shutil.copy2(f, d / f.name)
+    for f in TESTS_DIR.glob("*.py"):        # the hidden tests shipped in the bundle
+        shutil.copy2(f, d / f.name)
+    return d
 
 
 def run_pytest() -> tuple[dict, str]:
     """Run pytest → (parsed json report, combined stdout+stderr). The output is
     returned (not discarded) so a collection/import error can be SURFACED rather than
     reduced to a cryptic 0/1."""
+    gdir = grading_dir()
     out = pathlib.Path(tempfile.mkdtemp(prefix="c50-pytest-")) / "report.json"
     env = dict(os.environ)
-    # Lead sys.path with wherever the student's `solutions...` package lives (the
-    # workspace when nested, a reconstructed temp package when flat). For flat we also
-    # add the package dir itself so a multi-file solution's sibling imports resolve
-    # whether written as a package path or a flat `import sibling`.
-    root = solution_root()
-    paths = [str(root)]
-    if META.get("layout") == "flat" and META.get("package"):
-        paths.append(str(root / META["package"]))
-    if env.get("PYTHONPATH"):
-        paths.append(env["PYTHONPATH"])
-    env["PYTHONPATH"] = os.pathsep.join(paths)
+    env["PYTHONPATH"] = os.pathsep.join(
+        [str(gdir)] + ([env["PYTHONPATH"]] if env.get("PYTHONPATH") else []))
     env["PYTHONDONTWRITEBYTECODE"] = "1"
     proc = subprocess.run(
-        [sys.executable, "-m", "pytest", str(TESTS_DIR), "-q", "--no-header",
+        [sys.executable, "-m", "pytest", ".", "-q", "--no-header",
          "-p", "no:cacheprovider",
          "--json-report", f"--json-report-file={out}"],
-        cwd=str(WORKSPACE), env=env, check=False, capture_output=True, text=True,
+        cwd=str(gdir), env=env, check=False, capture_output=True, text=True,
         timeout=META.get("timeout", 300))
     output = (proc.stdout or "") + (proc.stderr or "")
     if not out.is_file():

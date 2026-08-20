@@ -18,5 +18,10 @@
     "TestInventoryDB.test_remove_record_missing_is_noop",
     "TestInventoryDB.test_remove_record_removes_newest",
     "TestWarehouse.test_warehouse_initialization"
+  ],
+  "solution_files": [
+    "inventory_db.py",
+    "inventory_record.py",
+    "warehouse.py"
   ]
 }

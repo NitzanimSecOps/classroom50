@@ -16,8 +16,6 @@
     "TestRelativeToAbsolute.test_nested_relative_path",
     "TestRelativeToAbsolute.test_already_absolute_path_returned_unchanged"
   ],
-  "layout": "flat",
-  "package": "solutions/suite_2_2_1/exercise_1",
   "solution_files": [
     "solution.py"
   ]

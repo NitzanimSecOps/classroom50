@@ -21,8 +21,6 @@
     "test_find_player_does_not_match_a_partial_name",
     "test_find_player_does_not_match_a_team_name"
   ],
-  "layout": "flat",
-  "package": "solutions/suite_2_2_1/exercise_3",
   "solution_files": [
     "solution.py"
   ]

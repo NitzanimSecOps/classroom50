@@ -17,8 +17,6 @@
     "test_total_thirteen_with_negatives",
     "test_raised_error_is_catchable_as_baby"
   ],
-  "layout": "flat",
-  "package": "solutions/suite_3_0_0/exercise_3",
   "solution_files": [
     "solution.py"
   ]

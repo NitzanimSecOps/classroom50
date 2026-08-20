@@ -5,14 +5,12 @@
   "points_per_test": 1,
   "timeout": 300,
   "tests": [
-    "TestMajorTomParser.test_missing_fields",
-    "TestMajorTomParser.test_return_type",
-    "TestMajorTomParser.test_transmission_0_parsing",
-    "TestMajorTomParser.test_transmission_1_endianness_and_zeroes",
-    "TestMajorTomParser.test_transmission_2_bitmask_combination"
+    "Ensure all mandatory schema keys exist within the output dictionary structure.",
+    "Verify that the parser function returns a dictionary.",
+    "Test parsing of transmission 0 using official reference values.",
+    "Verify Big Endian bounds handling (258) and zero values.",
+    "Verify compound bitmask logic when multiple flags are concurrently set (value 3)."
   ],
-  "layout": "flat",
-  "package": "solutions/suite_1_99_0/exercise_2",
   "solution_files": [
     "solution.py"
   ]

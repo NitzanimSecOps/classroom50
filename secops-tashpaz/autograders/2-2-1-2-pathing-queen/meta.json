@@ -28,8 +28,6 @@
     "TestGetLastEdited.test_returned_path_actually_exists",
     "TestGetLastEdited.test_finds_newest_file_in_nested_directory"
   ],
-  "layout": "flat",
-  "package": "solutions/suite_2_2_1/exercise_2",
   "solution_files": [
     "solution.py"
   ]

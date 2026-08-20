@@ -194,12 +194,12 @@
       },
       "template": {
         "owner": "NitzanimSecOps",
-        "repo": "secops-starter",
+        "repo": "secops-3-1-0-1-midsize-paper-company",
         "branch": "main"
       },
       "feedback_pr": true,
       "_exercise_id": "3.1.0.1",
-      "_tests": 6
+      "_tests": 5
     },
     {
       "slug": "3-1-0-2-abren",
@@ -214,7 +214,7 @@
       },
       "template": {
         "owner": "NitzanimSecOps",
-        "repo": "secops-starter",
+        "repo": "secops-3-1-0-2-abren",
         "branch": "main"
       },
       "feedback_pr": true,
@@ -234,7 +234,7 @@
       },
       "template": {
         "owner": "NitzanimSecOps",
-        "repo": "secops-starter",
+        "repo": "secops-3-1-0-3-storage-wars",
         "branch": "main"
       },
       "feedback_pr": true,
@@ -254,32 +254,12 @@
       },
       "template": {
         "owner": "NitzanimSecOps",
-        "repo": "secops-starter",
+        "repo": "secops-3-1-0-4-hashing",
         "branch": "main"
       },
       "feedback_pr": true,
       "_exercise_id": "3.1.0.4",
       "_tests": 4
-    },
-    {
-      "slug": "3-1-0-5-pesky-mole",
-      "name": "3.1.0.5 Pesky Mole",
-      "mode": "individual",
-      "autograder": "default",
-      "runtime": {
-        "runs-on": [
-          "self-hosted",
-          "autograder"
-        ]
-      },
-      "template": {
-        "owner": "NitzanimSecOps",
-        "repo": "secops-starter",
-        "branch": "main"
-      },
-      "feedback_pr": true,
-      "_exercise_id": "3.1.0.5",
-      "_tests": 15
     }
   ]
 }

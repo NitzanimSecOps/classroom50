@@ -13,8 +13,6 @@
     "test_32_bit_image_is_supported",
     "test_non_bmp_file_is_rejected"
   ],
-  "layout": "flat",
-  "package": "solutions/suite_2_2_1/exercise_4",
   "solution_files": [
     "solution.py"
   ]

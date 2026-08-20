@@ -12,5 +12,10 @@
     "TestWarehouseLog.test_read_all",
     "TestWarehouseLog.test_write_format_and_append",
     "TestWarehouse.test_warehouse_initialization"
+  ],
+  "solution_files": [
+    "shipment_manifest.py",
+    "warehouse.py",
+    "warehouse_log.py"
   ]
 }

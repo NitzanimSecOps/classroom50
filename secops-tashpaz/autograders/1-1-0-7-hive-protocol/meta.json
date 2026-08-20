@@ -5,16 +5,14 @@
   "points_per_test": 1,
   "timeout": 300,
   "tests": [
-    "TestHivePacket.test_bee_id_parsing",
-    "TestHivePacket.test_checksum_parsing",
-    "TestHivePacket.test_header_parsing",
-    "TestHivePacket.test_honey_weight_parsing",
-    "TestHivePacket.test_verify_packet_invalid_checksum",
-    "TestHivePacket.test_verify_packet_invalid_version",
-    "TestHivePacket.test_verify_packet_valid"
+    "Test that the Big Endian Bee ID (Bytes 1-2) is parsed correctly.",
+    "Test that the Checksum (Byte 5) is extracted correctly.",
+    "Test that the Header (Byte 0) is parsed correctly.",
+    "Test that Honey Weight (Byte 4) is parsed correctly.",
+    "Test that verify_packet() catches a corrupted payload.",
+    "Test that verify_packet() catches a bad version number.",
+    "Test that verify_packet() returns True for a valid packet."
   ],
-  "layout": "flat",
-  "package": "solutions/suite_1_1_0/exercise_7",
   "solution_files": [
     "hive_packet.py"
   ]

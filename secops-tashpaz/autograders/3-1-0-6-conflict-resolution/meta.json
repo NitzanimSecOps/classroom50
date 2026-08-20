@@ -1,0 +1,12 @@
+{
+  "slug": "3-1-0-6-conflict-resolution",
+  "classroom": "secops-tashpaz",
+  "exercise_id": "3.1.0.6",
+  "points_per_test": 1,
+  "timeout": 300,
+  "tests": [],
+  "solution_files": [
+    "permission_auditor.py",
+    "warehouse.py"
+  ]
+}

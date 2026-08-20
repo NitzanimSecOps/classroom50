@@ -1,0 +1,11 @@
+{
+  "slug": "4-2-0-6-muj-the-wise",
+  "classroom": "secops-tashpaz",
+  "exercise_id": "4.2.0.6",
+  "points_per_test": 1,
+  "timeout": 300,
+  "tests": [],
+  "solution_files": [
+    "chat.py"
+  ]
+}
