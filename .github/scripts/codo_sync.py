@@ -22,11 +22,35 @@ import os
 import pathlib
 import re
 import sys
+import time
 import urllib.error
 import urllib.request
 
 GH_API = os.environ.get("GITHUB_API_URL", "https://api.github.com")
 _SHA_RE = re.compile(r"/commit/([0-9a-fA-F]{7,40})")
+
+# Transient GitHub failures worth retrying: rate-limit + the 5xx family. A partial
+# GitHub incident (e.g. the 2026-08 runner-group one) shouldn't abort a whole sweep
+# mid-roster — retry with backoff, then let the error surface so the NEXT sweep re-reads.
+_RETRY_CODES = {429, 500, 502, 503, 504}
+
+
+def _urlopen_retry(req, timeout=30, tries=4, base=1.5):
+    """urlopen with exponential backoff on transient failures (429/5xx + URLError).
+    Non-transient HTTPError (404/403/…) raises immediately so callers keep their
+    existing handling; the last attempt re-raises whatever failed."""
+    for i in range(tries):
+        try:
+            return urllib.request.urlopen(req, timeout=timeout)
+        except urllib.error.HTTPError as e:
+            if e.code not in _RETRY_CODES or i == tries - 1:
+                raise
+            print(f"::warning::GitHub {e.code} on {req.full_url} — retry {i + 1}/{tries - 1}")
+        except urllib.error.URLError as e:
+            if i == tries - 1:
+                raise
+            print(f"::warning::GitHub unreachable ({e.reason}) — retry {i + 1}/{tries - 1}")
+        time.sleep(base * (2 ** i))
 
 
 # ---- GitHub reads (secret team + student repo releases) ----------------------
@@ -37,7 +61,7 @@ def _headers(token, accept="application/vnd.github+json"):
 
 def _gh(path, token, accept="application/vnd.github+json"):
     req = urllib.request.Request(GH_API + path, headers=_headers(token, accept))
-    with urllib.request.urlopen(req, timeout=30) as r:
+    with _urlopen_retry(req, timeout=30) as r:
         return r.read()
 
 
@@ -49,7 +73,7 @@ def _gh_paged(path, token):
     items = []
     while url:
         req = urllib.request.Request(url, headers=_headers(token))
-        with urllib.request.urlopen(req, timeout=30) as r:
+        with _urlopen_retry(req, timeout=30) as r:
             items.extend(json.loads(r.read().decode()))
             link = r.headers.get("Link", "") or ""
         url = None
@@ -163,6 +187,12 @@ def submit(api_base, class_id, payload, key):
             return getattr(r, "status", 200), json.loads(r.read().decode() or "null")
     except urllib.error.HTTPError as e:
         return e.code, json.loads(e.read().decode() or "null")
+    except urllib.error.URLError as e:
+        # Backend unreachable (down / restarting / DNS). Report as a failed attempt
+        # (status 0) so the roster sweep records it and CONTINUES — a single dead
+        # backend must never abort the whole run. The Release persists; the next
+        # sweep resends (the backend skips only already-'ok' submissions).
+        return 0, {"error": f"backend unreachable: {e.reason}"}
 
 
 # ---- orchestration ----------------------------------------------------------
@@ -215,13 +245,22 @@ def main(argv=None):
     only = (os.environ.get("CLASSROOM_FILTER") or "").strip()
     classrooms = [only] if only else sorted(p.parent.name for p in root.glob("*/assignments.json"))
     total_ok = total_fail = 0
+    hard_fail = 0
     for c in classrooms:
-        ok, fail = sync_classroom(root, org, c, api_base, key, token, dry_run=dry)
+        # Isolate classrooms: a hard failure in one (e.g. a team read that 5xxs past
+        # all retries) is reported and skipped, never allowed to abort the rest.
+        try:
+            ok, fail = sync_classroom(root, org, c, api_base, key, token, dry_run=dry)
+        except Exception as e:  # noqa: BLE001
+            hard_fail += 1
+            print(f"::error::classroom {c!r} sync aborted: {type(e).__name__}: {e}")
+            continue
         total_ok += ok
         total_fail += fail
     print(f"\ncodo-sync: {total_ok} submitted, {total_fail} failed "
-          f"across {len(classrooms)} classroom(s)")
-    return 1 if total_fail else 0
+          f"across {len(classrooms)} classroom(s)"
+          + (f"; {hard_fail} classroom(s) aborted" if hard_fail else ""))
+    return 1 if (total_fail or hard_fail) else 0
 
 
 if __name__ == "__main__":
