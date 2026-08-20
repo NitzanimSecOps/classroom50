@@ -46,7 +46,8 @@ def test_sync_classroom_walks_team_and_releases():
 
 
 def test_dry_run_skips_submit():
-    saved = (codo_sync.team_members, codo_sync.repo_results, codo_sync.assignment_slugs)
+    saved = (codo_sync.team_members, codo_sync.repo_results,
+             codo_sync.assignment_slugs, codo_sync.submit)
     codo_sync.team_members = lambda org, classroom, token: ["opherul"]
     codo_sync.assignment_slugs = lambda root, classroom: ["smoke"]
     codo_sync.repo_results = lambda org, repo, token: iter([RESULT])
@@ -56,7 +57,8 @@ def test_dry_run_skips_submit():
         ok, fail = codo_sync.sync_classroom(".", "org", "demo", None, None, "tok", dry_run=True)
         assert ok == 1 and fail == 0 and hit == []
     finally:
-        (codo_sync.team_members, codo_sync.repo_results, codo_sync.assignment_slugs) = saved
+        (codo_sync.team_members, codo_sync.repo_results,
+         codo_sync.assignment_slugs, codo_sync.submit) = saved
 
 
 def test_group_credits_owner_and_rostered_collaborators():
@@ -79,6 +81,42 @@ def test_group_credits_owner_and_rostered_collaborators():
     finally:
         (codo_sync.team_members, codo_sync.repo_results, codo_sync.assignment_slugs,
          codo_sync.repo_collaborators, codo_sync.submit) = saved
+
+
+def test_submit_survives_backend_down():
+    # A down/unreachable backend (URLError) must NOT propagate: submit() reports
+    # status 0 so the sweep records a failure and continues.
+    import urllib.error
+    import urllib.request
+    saved = urllib.request.urlopen
+
+    def boom(*a, **k):
+        raise urllib.error.URLError("Connection refused")
+
+    urllib.request.urlopen = boom
+    try:
+        status, body = codo_sync.submit("http://localhost:59999", "demo", {"x": 1}, "k")
+        assert status == 0, status
+        assert "unreachable" in (body or {}).get("error", ""), body
+    finally:
+        urllib.request.urlopen = saved
+
+
+def test_sync_counts_failed_submit_and_continues():
+    # A non-200 submit (e.g. backend down -> 0) is counted as failed; the sweep does
+    # not crash and returns normally.
+    saved = (codo_sync.team_members, codo_sync.repo_results,
+             codo_sync.assignment_slugs, codo_sync.submit)
+    codo_sync.team_members = lambda o, c, t: ["opherul"]
+    codo_sync.assignment_slugs = lambda r, c: ["smoke"]
+    codo_sync.repo_results = lambda o, repo, t: (iter([RESULT]) if repo == "demo-smoke-opherul" else iter([]))
+    codo_sync.submit = lambda *a, **k: (0, {"error": "backend unreachable: refused"})
+    try:
+        ok, fail = codo_sync.sync_classroom(".", "NitzanimSecOps", "demo", "https://b", "k", "tok")
+        assert ok == 0 and fail == 1, (ok, fail)
+    finally:
+        (codo_sync.team_members, codo_sync.repo_results,
+         codo_sync.assignment_slugs, codo_sync.submit) = saved
 
 
 if __name__ == "__main__":
