@@ -3,5 +3,22 @@
   "classroom": "secops-tashpaz",
   "exercise_id": "3.1.0.5",
   "points_per_test": 1,
-  "timeout": 300
+  "timeout": 300,
+  "tests": [
+    "TestChallengeGeneration.test_baseline_is_outside_the_hashed_root",
+    "TestChallengeGeneration.test_benign_changed_records_stay_valid",
+    "TestChallengeGeneration.test_discrepancy_budget",
+    "TestChallengeGeneration.test_discrepancy_count_is_too_large_to_eyeball",
+    "TestChallengeGeneration.test_funnel_narrows_to_exactly_one_file",
+    "TestChallengeGeneration.test_generation_is_deterministic",
+    "TestChallengeGeneration.test_payload_is_changed_not_new",
+    "TestChallengeGeneration.test_payload_lies_about_its_type",
+    "TestChallengeGeneration.test_record_count",
+    "TestChallengeGeneration.test_record_filenames_are_unique",
+    "TestChallengeGeneration.test_skus_are_not_substrings_of_each_other",
+    "TestShippedZip.test_baseline_uses_posix_separators",
+    "TestShippedZip.test_extracted_zip_reproduces_the_budget",
+    "TestShippedZip.test_no_flag_in_plaintext_anywhere",
+    "TestShippedZip.test_zip_contains_warehouse_and_baseline"
+  ]
 }

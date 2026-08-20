@@ -14,7 +14,7 @@
       },
       "template": {
         "owner": "NitzanimSecOps",
-        "repo": "secops-starter",
+        "repo": "secops-1-1-0-7-hive-protocol",
         "branch": "main"
       },
       "feedback_pr": true,
@@ -34,7 +34,7 @@
       },
       "template": {
         "owner": "NitzanimSecOps",
-        "repo": "secops-starter",
+        "repo": "secops-1-99-0-2-major-tom",
         "branch": "main"
       },
       "feedback_pr": true,
@@ -54,7 +54,7 @@
       },
       "template": {
         "owner": "NitzanimSecOps",
-        "repo": "secops-starter",
+        "repo": "secops-2-2-1-1-s-os",
         "branch": "main"
       },
       "feedback_pr": true,
@@ -74,7 +74,7 @@
       },
       "template": {
         "owner": "NitzanimSecOps",
-        "repo": "secops-starter",
+        "repo": "secops-2-2-1-2-pathing-queen",
         "branch": "main"
       },
       "feedback_pr": true,
@@ -94,7 +94,7 @@
       },
       "template": {
         "owner": "NitzanimSecOps",
-        "repo": "secops-starter",
+        "repo": "secops-2-2-1-3-kisses-of-file",
         "branch": "main"
       },
       "feedback_pr": true,
@@ -114,7 +114,7 @@
       },
       "template": {
         "owner": "NitzanimSecOps",
-        "repo": "secops-starter",
+        "repo": "secops-2-2-1-4-rencoding",
         "branch": "main"
       },
       "feedback_pr": true,
@@ -134,7 +134,7 @@
       },
       "template": {
         "owner": "NitzanimSecOps",
-        "repo": "secops-starter",
+        "repo": "secops-3-0-0-1-what-to-except-when-you-re-excepting",
         "branch": "main"
       },
       "feedback_pr": true,
@@ -154,7 +154,7 @@
       },
       "template": {
         "owner": "NitzanimSecOps",
-        "repo": "secops-starter",
+        "repo": "secops-3-0-0-2-catching",
         "branch": "main"
       },
       "feedback_pr": true,
@@ -174,7 +174,7 @@
       },
       "template": {
         "owner": "NitzanimSecOps",
-        "repo": "secops-starter",
+        "repo": "secops-3-0-0-3-designer-baby",
         "branch": "main"
       },
       "feedback_pr": true,

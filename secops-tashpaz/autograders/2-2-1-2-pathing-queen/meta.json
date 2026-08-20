@@ -3,5 +3,34 @@
   "classroom": "secops-tashpaz",
   "exercise_id": "2.2.1.2",
   "points_per_test": 1,
-  "timeout": 300
+  "timeout": 300,
+  "tests": [
+    "TestJoinPaths.test_joins_two_relative_paths",
+    "TestJoinPaths.test_joins_nested_paths",
+    "TestJoinPaths.test_returns_a_path_object",
+    "TestJoinPaths.test_second_path_absolute_replaces_first",
+    "TestFind.test_finds_file_in_base_directory",
+    "TestFind.test_finds_file_one_level_deep",
+    "TestFind.test_finds_file_deeply_nested",
+    "TestFind.test_returns_none_when_not_found",
+    "TestFind.test_returns_none_in_empty_directory",
+    "TestFind.test_returned_path_actually_exists",
+    "TestCountFilesByExtension.test_counts_recursively_across_all_levels",
+    "TestCountFilesByExtension.test_counts_single_match",
+    "TestCountFilesByExtension.test_counts_match_in_nested_dir_only",
+    "TestCountFilesByExtension.test_returns_zero_when_no_matches",
+    "TestCountFilesByExtension.test_returns_zero_for_empty_directory",
+    "TestCountFilesByExtension.test_does_not_count_directories",
+    "TestCountFilesByExtension.test_does_not_match_on_substring",
+    "TestGetLastEdited.test_returns_most_recently_edited_file",
+    "TestGetLastEdited.test_single_file_is_the_answer",
+    "TestGetLastEdited.test_ignores_extension_and_name_ordering",
+    "TestGetLastEdited.test_returned_path_actually_exists",
+    "TestGetLastEdited.test_finds_newest_file_in_nested_directory"
+  ],
+  "layout": "flat",
+  "package": "solutions/suite_2_2_1/exercise_2",
+  "solution_files": [
+    "solution.py"
+  ]
 }

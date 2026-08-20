@@ -3,5 +3,27 @@
   "classroom": "secops-tashpaz",
   "exercise_id": "2.2.1.3",
   "points_per_test": 1,
-  "timeout": 300
+  "timeout": 300,
+  "tests": [
+    "test_write_diary_returns_false_when_diary_is_missing",
+    "test_write_diary_does_not_create_a_missing_diary",
+    "test_write_diary_writes_date_then_message",
+    "test_write_diary_appends_instead_of_overwriting",
+    "test_write_diary_keeps_every_entry",
+    "test_print_players_formats_each_player",
+    "test_print_players_prints_every_player",
+    "test_print_players_returns_the_parsed_players",
+    "test_print_players_strips_the_trailing_newline",
+    "test_find_player_returns_the_player_fields",
+    "test_find_player_finds_the_first_line",
+    "test_find_player_finds_the_last_line",
+    "test_find_player_returns_empty_list_when_missing",
+    "test_find_player_does_not_match_a_partial_name",
+    "test_find_player_does_not_match_a_team_name"
+  ],
+  "layout": "flat",
+  "package": "solutions/suite_2_2_1/exercise_3",
+  "solution_files": [
+    "solution.py"
+  ]
 }

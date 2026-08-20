@@ -3,5 +3,19 @@
   "classroom": "secops-tashpaz",
   "exercise_id": "1.1.0.7",
   "points_per_test": 1,
-  "timeout": 300
+  "timeout": 300,
+  "tests": [
+    "TestHivePacket.test_bee_id_parsing",
+    "TestHivePacket.test_checksum_parsing",
+    "TestHivePacket.test_header_parsing",
+    "TestHivePacket.test_honey_weight_parsing",
+    "TestHivePacket.test_verify_packet_invalid_checksum",
+    "TestHivePacket.test_verify_packet_invalid_version",
+    "TestHivePacket.test_verify_packet_valid"
+  ],
+  "layout": "flat",
+  "package": "solutions/suite_1_1_0/exercise_7",
+  "solution_files": [
+    "hive_packet.py"
+  ]
 }

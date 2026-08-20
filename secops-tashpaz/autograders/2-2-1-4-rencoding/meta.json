@@ -3,5 +3,19 @@
   "classroom": "secops-tashpaz",
   "exercise_id": "2.2.1.4",
   "points_per_test": 1,
-  "timeout": 300
+  "timeout": 300,
+  "tests": [
+    "test_header_is_preserved",
+    "test_every_pixel_byte_is_bit_flipped",
+    "test_black_becomes_white",
+    "test_inverting_twice_restores_the_original",
+    "test_file_size_is_unchanged",
+    "test_32_bit_image_is_supported",
+    "test_non_bmp_file_is_rejected"
+  ],
+  "layout": "flat",
+  "package": "solutions/suite_2_2_1/exercise_4",
+  "solution_files": [
+    "solution.py"
+  ]
 }

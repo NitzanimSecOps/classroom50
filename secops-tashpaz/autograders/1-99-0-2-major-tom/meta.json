@@ -3,5 +3,17 @@
   "classroom": "secops-tashpaz",
   "exercise_id": "1.99.0.2",
   "points_per_test": 1,
-  "timeout": 300
+  "timeout": 300,
+  "tests": [
+    "TestMajorTomParser.test_missing_fields",
+    "TestMajorTomParser.test_return_type",
+    "TestMajorTomParser.test_transmission_0_parsing",
+    "TestMajorTomParser.test_transmission_1_endianness_and_zeroes",
+    "TestMajorTomParser.test_transmission_2_bitmask_combination"
+  ],
+  "layout": "flat",
+  "package": "solutions/suite_1_99_0/exercise_2",
+  "solution_files": [
+    "solution.py"
+  ]
 }

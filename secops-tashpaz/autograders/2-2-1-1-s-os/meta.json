@@ -3,5 +3,22 @@
   "classroom": "secops-tashpaz",
   "exercise_id": "2.2.1.1",
   "points_per_test": 1,
-  "timeout": 300
+  "timeout": 300,
+  "tests": [
+    "TestGetLoggedInUser.test_returns_os_getlogin_result",
+    "TestGetUserDirectory.test_lists_files_in_logged_in_users_home_directory",
+    "TestGetUserDirectory.test_uses_current_logged_in_user_not_a_hardcoded_name",
+    "TestMakeUserFolder.test_creates_folder_and_returns_true",
+    "TestMakeUserFolder.test_existing_target_folder_returns_false",
+    "TestMakeUserFolder.test_nonexistent_base_path_returns_false",
+    "TestMakeUserFolder.test_folder_name_uses_current_user",
+    "TestRelativeToAbsolute.test_relative_path_resolved_against_cwd",
+    "TestRelativeToAbsolute.test_nested_relative_path",
+    "TestRelativeToAbsolute.test_already_absolute_path_returned_unchanged"
+  ],
+  "layout": "flat",
+  "package": "solutions/suite_2_2_1/exercise_1",
+  "solution_files": [
+    "solution.py"
+  ]
 }
