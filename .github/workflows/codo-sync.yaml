@@ -1,8 +1,15 @@
 name: Codo Sync
 
 # Push graded submissions to the autograder backend (which forwards to Codo).
-# Trusted: holds the backend collector key. Run after collect-scores has refreshed
-# each <classroom>/scores.json. Idempotent on the backend, so safe to re-run.
+# Trusted: holds the backend collector key. Reads the secret team (roster) + each
+# student repo's submit/* Releases directly — no roster.csv / scores.json in the repo.
+#
+# This is the SELF-HEALING SWEEP. The near-real-time path is a GitHub release webhook
+# straight to the backend (immediate, credits the repo owner). This scheduled sweep is
+# the safety net: it re-drives anything the webhook missed (a dropped delivery, a backend
+# blip) and fans a group assignment out to every rostered teammate. It is idempotent —
+# the backend skips already-'ok' submissions and honours per-row backoff — so re-running
+# never double-credits and a permanently-bad row is not hammered.
 
 on:
   workflow_dispatch:
@@ -11,12 +18,23 @@ on:
         description: "single classroom to sync (blank = all)"
         required: false
         default: ""
-  # Optional: run nightly after collect-scores. Uncomment to enable.
-  # schedule:
-  #   - cron: "30 5 * * *"
+      reconcile:
+        description: "also report accepted-but-never-graded repos (RECONCILE=1)"
+        type: boolean
+        required: false
+        default: false
+  schedule:
+    # Every 15 min: the webhook handles the immediate case, so this only needs to
+    # catch stragglers + fan out group teammates. Cheap (idempotent) and self-healing.
+    - cron: "*/15 * * * *"
 
 permissions:
   contents: read
+
+concurrency:
+  # Never let two sweeps overlap — they'd double-walk the roster for no benefit.
+  group: codo-sync
+  cancel-in-progress: false
 
 jobs:
   sync:
@@ -34,4 +52,5 @@ jobs:
           # fine-grained PAT collect_scores uses. No roster.csv/scores.json involved.
           GH_TOKEN: ${{ secrets.CLASSROOM50_SERVICE_TOKEN }}
           CLASSROOM_FILTER: ${{ inputs.classroom }}
+          RECONCILE: ${{ inputs.reconcile && '1' || '' }}
         run: python .github/scripts/codo_sync.py .
