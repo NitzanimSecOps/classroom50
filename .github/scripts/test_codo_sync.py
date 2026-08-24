@@ -159,13 +159,15 @@ def test_reconcile_off_does_not_probe():
 
 
 def test_teacher_grant_todo():
-    roster, slugs = ["alice", "bob"], ["1-1-0-7-hive", "2-2-1-1-sos"]
-    org_repos = ["demo-1-1-0-7-hive-alice", "demo-2-2-1-1-sos-bob",
-                 "demo-beer-sheva-1-1-0-7-hive-alice",   # DIFFERENT classroom (prefix)
+    # roster login is mixed-case (opherShur); the repo is lowercased by gh student accept
+    roster, slugs = ["AliceB", "bob"], ["1-1-0-7-hive", "2-2-1-1-sos"]
+    org_repos = ["demo-1-1-0-7-hive-aliceb", "demo-2-2-1-1-sos-bob",
+                 "demo-beer-sheva-1-1-0-7-hive-aliceb",  # DIFFERENT classroom (prefix)
                  "unrelated"]
-    already = ["demo-1-1-0-7-hive-alice"]                # team already has this one
+    already = ["demo-1-1-0-7-hive-aliceb"]               # team already has this one
     todo = codo_sync.teacher_grant_todo("demo", roster, slugs, org_repos, already)
-    # only bob's existing, not-yet-granted repo; the beer-sheva prefix repo never bleeds in
+    # AliceB's hive matched despite case; only bob's not-yet-granted repo remains;
+    # the beer-sheva prefix repo never bleeds in
     assert todo == ["demo-2-2-1-1-sos-bob"], todo
 
 

@@ -238,9 +238,16 @@ def teacher_grant_todo(classroom, roster_names, slugs, org_repos, already):
     """Pure set logic: the student repos that should be shared to the teacher team but
     aren't yet. Exact `<classroom>-<slug>-<user>` names (never a prefix match, so
     `secops-tashpaz` can't bleed into `secops-tashpaz-beer-sheva`), intersected with the
-    repos that actually exist, minus what the team already has."""
-    expected = {f"{classroom}-{s}-{u}" for u in roster_names for s in slugs}
-    return sorted((expected & set(org_repos)) - set(already))
+    repos that actually exist, minus what the team already has.
+
+    Case-INSENSITIVE: `gh student accept` lowercases the repo name, but the team API
+    returns the roster login in display case (`opherShur`) — so we must match on
+    lowercase, or a mixed-case student is silently skipped. Returns lowercase names; the
+    repo API resolves those case-insensitively for the grant."""
+    expected = {f"{classroom}-{s}-{u}".lower() for u in roster_names for s in slugs}
+    have = {r.lower() for r in org_repos}
+    granted = {r.lower() for r in already}
+    return sorted((expected & have) - granted)
 
 
 def grant_teacher_access(org, classroom, roster_names, slugs, admin_token):
