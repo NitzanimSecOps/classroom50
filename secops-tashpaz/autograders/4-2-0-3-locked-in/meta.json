@@ -14,5 +14,7 @@
     "test_unknown_unicast_still_floods",
     "test_known_unicast_still_forwards_to_learned_port"
   ],
-  "solution_files": []
+  "solution_files": [
+    "switch.py"
+  ]
 }

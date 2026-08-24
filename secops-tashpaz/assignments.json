@@ -342,6 +342,46 @@
       "_tests": 8
     },
     {
+      "slug": "4-2-0-4-fleeting",
+      "name": "4.2.0.4 Fleeting",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": [
+          "self-hosted",
+          "autograder"
+        ]
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-4-2-0-4-fleeting",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "4.2.0.4",
+      "_tests": 4
+    },
+    {
+      "slug": "4-2-0-5-comatose",
+      "name": "4.2.0.5 Comatose",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": [
+          "self-hosted",
+          "autograder"
+        ]
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-4-2-0-5-comatose",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "4.2.0.5",
+      "_tests": 4
+    },
+    {
       "slug": "4-2-0-6-muj-the-wise",
       "name": "4.2.0.6 Muj the Wise",
       "mode": "individual",

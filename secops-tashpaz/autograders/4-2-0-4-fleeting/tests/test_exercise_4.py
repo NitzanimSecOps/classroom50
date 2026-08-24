@@ -24,7 +24,7 @@ BROADCAST_MAC = "FF:FF:FF:FF:FF:FF"
 
 # The whole file is an integration test: it needs root + the `ip` tool.
 pytestmark = pytest.mark.skipif(
-    os.geteuid() != 0 or shutil.which("ip") is None,
+    not hasattr(os, "geteuid") or os.geteuid() != 0 or shutil.which("ip") is None,
     reason="raw sockets + veth setup require root and the `ip` command (run under sudo)",
 )
 

@@ -12,5 +12,7 @@
     "test_known_unicast_forwards_to_learned_port",
     "test_known_unicast_on_incoming_port_is_filtered"
   ],
-  "solution_files": []
+  "solution_files": [
+    "switch.py"
+  ]
 }

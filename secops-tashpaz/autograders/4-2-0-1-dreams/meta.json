@@ -11,5 +11,7 @@
     "test_parses_ethertype",
     "test_parses_payload"
   ],
-  "solution_files": []
+  "solution_files": [
+    "ethernet.py"
+  ]
 }

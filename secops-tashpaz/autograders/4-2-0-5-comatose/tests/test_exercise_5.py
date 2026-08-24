@@ -27,7 +27,7 @@ HOST_B = "B2:CC:DD:EE:6F:71"
 BROADCAST_MAC = "FF:FF:FF:FF:FF:FF"
 
 pytestmark = pytest.mark.skipif(
-    os.geteuid() != 0 or shutil.which("ip") is None,
+    not hasattr(os, "geteuid") or os.geteuid() != 0 or shutil.which("ip") is None,
     reason="raw sockets + veth setup require root and the `ip` command (run under sudo)",
 )
 
