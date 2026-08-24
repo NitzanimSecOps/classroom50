@@ -119,6 +119,45 @@ def test_sync_counts_failed_submit_and_continues():
          codo_sync.assignment_slugs, codo_sync.submit) = saved
 
 
+def test_reconcile_flags_accepted_but_ungraded():
+    # A repo that exists but has no submit/* release is an invisible gap: reconcile
+    # must probe repo_exists and flag it, without submitting anything.
+    saved = (codo_sync.team_members, codo_sync.repo_results,
+             codo_sync.assignment_slugs, codo_sync.repo_exists, codo_sync.submit)
+    codo_sync.team_members = lambda o, c, t: ["opherul"]
+    codo_sync.assignment_slugs = lambda r, c: ["smoke"]
+    codo_sync.repo_results = lambda o, repo, t: iter([])       # never graded
+    probed = []
+    codo_sync.repo_exists = lambda o, repo, t: (probed.append(repo), True)[1]
+    hit = []
+    codo_sync.submit = lambda *a, **k: hit.append(1)          # must NOT be called
+    try:
+        ok, fail = codo_sync.sync_classroom(".", "NitzanimSecOps", "demo", "https://b",
+                                            "k", "tok", reconcile=True)
+        assert ok == 0 and fail == 0 and hit == []
+        assert probed == ["demo-smoke-opherul"], probed
+    finally:
+        (codo_sync.team_members, codo_sync.repo_results,
+         codo_sync.assignment_slugs, codo_sync.repo_exists, codo_sync.submit) = saved
+
+
+def test_reconcile_off_does_not_probe():
+    # Without reconcile, the hot path must never call repo_exists (no extra API cost).
+    saved = (codo_sync.team_members, codo_sync.repo_results,
+             codo_sync.assignment_slugs, codo_sync.repo_exists)
+    codo_sync.team_members = lambda o, c, t: ["opherul"]
+    codo_sync.assignment_slugs = lambda r, c: ["smoke"]
+    codo_sync.repo_results = lambda o, repo, t: iter([])
+    probed = []
+    codo_sync.repo_exists = lambda o, repo, t: (probed.append(repo), True)[1]
+    try:
+        codo_sync.sync_classroom(".", "org", "demo", "https://b", "k", "tok")
+        assert probed == [], probed
+    finally:
+        (codo_sync.team_members, codo_sync.repo_results,
+         codo_sync.assignment_slugs, codo_sync.repo_exists) = saved
+
+
 if __name__ == "__main__":
     tests = [v for k, v in sorted(globals().items()) if k.startswith("test_") and callable(v)]
     failed = 0

@@ -126,6 +126,20 @@ def credited_logins(org, repo, result, roster, token):
     return out
 
 
+def repo_exists(org, repo, token):
+    """True if the student repo exists (i.e. the student accepted). Used by the
+    reconciler to tell 'never accepted' (no repo) from 'accepted but never graded'
+    (repo exists, no submit/* release) — the latter is an invisible gap worth flagging."""
+    req = urllib.request.Request(f"{GH_API}/repos/{org}/{repo}", headers=_headers(token))
+    try:
+        with _urlopen_retry(req, timeout=30):
+            return True
+    except urllib.error.HTTPError as e:
+        if e.code == 404:
+            return False
+        raise
+
+
 def repo_results(org, repo, token):
     """Yield each result.json (dict) from `repo`'s submit/* releases. A 404 means
     the student never accepted/submitted — not an error."""
@@ -220,18 +234,20 @@ def submit(api_base, class_id, payload, key):
 
 
 # ---- orchestration ----------------------------------------------------------
-def sync_classroom(root, org, classroom, api_base, key, token, dry_run=False):
+def sync_classroom(root, org, classroom, api_base, key, token, dry_run=False, reconcile=False):
     roster_names = team_members(org, classroom, token)   # the secret team = the roster
     roster = {m.lower() for m in roster_names}
     slugs = assignment_slugs(root, classroom)
-    ok = fail = 0
+    ok = fail = gaps = 0
     # Iterate the roster × assignments. A group assignment's repo lives under the
     # founder only, so a teammate's own repo 404s (skipped) — they're instead credited
     # when we process the founder's repo, via credited_logins (owner + rostered collabs).
     for user in roster_names:
         for slug in slugs:
             repo = f"{classroom}-{slug}-{user}"
+            saw_result = False
             for result in repo_results(org, repo, token):
+                saw_result = True
                 for login in credited_logins(org, repo, result, roster, token):
                     payload = to_payload(result, login=login)
                     tag = payload["release_tag"]
@@ -247,7 +263,15 @@ def sync_classroom(root, org, classroom, api_base, key, token, dry_run=False):
                     else:
                         fail += 1
                         print(f"::warning::{line}")
-    print(f"{classroom}: {ok} submitted, {fail} failed "
+            # Reconcile: a repo that exists but produced no submit/* release is an
+            # accepted-but-never-graded gap (a push that never triggered/finished the
+            # grade job). Invisible otherwise — surface it so a human can regrade.
+            if reconcile and not saw_result and repo_exists(org, repo, token):
+                gaps += 1
+                print(f"::warning::GAP {classroom}/{slug} {user}: repo exists, no submit/* "
+                      f"release (accepted but never graded)")
+    tail = f", {gaps} ungraded gap(s)" if reconcile else ""
+    print(f"{classroom}: {ok} submitted, {fail} failed{tail} "
           f"({len(roster_names)} students x {len(slugs)} assignments)")
     return ok, fail
 
@@ -259,6 +283,7 @@ def main(argv=None):
     key = os.environ.get("CODO_COLLECTOR_KEY")
     token = os.environ.get("GH_TOKEN")
     dry = os.environ.get("DRY_RUN") == "1"
+    reconcile = os.environ.get("RECONCILE") == "1"
     need = [k for k, v in [("ORG/GITHUB_REPOSITORY_OWNER", org), ("GH_TOKEN", token),
                            ("CODO_API_BASE", api_base if not dry else "x"),
                            ("CODO_COLLECTOR_KEY", key if not dry else "x")] if not v]
@@ -274,7 +299,8 @@ def main(argv=None):
         # Isolate classrooms: a hard failure in one (e.g. a team read that 5xxs past
         # all retries) is reported and skipped, never allowed to abort the rest.
         try:
-            ok, fail = sync_classroom(root, org, c, api_base, key, token, dry_run=dry)
+            ok, fail = sync_classroom(root, org, c, api_base, key, token,
+                                      dry_run=dry, reconcile=reconcile)
         except Exception as e:  # noqa: BLE001
             hard_fail += 1
             print(f"::error::classroom {c!r} sync aborted: {type(e).__name__}: {e}")
@@ -284,6 +310,14 @@ def main(argv=None):
     print(f"\ncodo-sync: {total_ok} submitted, {total_fail} failed "
           f"across {len(classrooms)} classroom(s)"
           + (f"; {hard_fail} classroom(s) aborted" if hard_fail else ""))
+    # On a hard failure, attribute it: was GitHub degraded, or is it us? (2026-08-17
+    # lesson — a partial GitHub incident was misread as our egress problem for ~90 min.)
+    if hard_fail:
+        try:
+            import github_health
+            github_health.main(["--quiet"])
+        except Exception:  # noqa: BLE001 - diagnostics must never mask the real failure
+            pass
     return 1 if (total_fail or hard_fail) else 0
 
 
