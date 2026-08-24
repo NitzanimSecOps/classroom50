@@ -1,0 +1,19 @@
+{
+  "slug": "1-1-0-7-hive-protocol",
+  "classroom": "secops-tashpaz-yizrael",
+  "exercise_id": "1.1.0.7",
+  "points_per_test": 1,
+  "timeout": 300,
+  "tests": [
+    "Test that the Big Endian Bee ID (Bytes 1-2) is parsed correctly.",
+    "Test that the Checksum (Byte 5) is extracted correctly.",
+    "Test that the Header (Byte 0) is parsed correctly.",
+    "Test that Honey Weight (Byte 4) is parsed correctly.",
+    "Test that verify_packet() catches a corrupted payload.",
+    "Test that verify_packet() catches a bad version number.",
+    "Test that verify_packet() returns True for a valid packet."
+  ],
+  "solution_files": [
+    "hive_packet.py"
+  ]
+}

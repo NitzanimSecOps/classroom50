@@ -1,0 +1,18 @@
+{
+  "slug": "3-1-0-1-midsize-paper-company",
+  "classroom": "secops-tashpaz-yizrael",
+  "exercise_id": "3.1.0.1",
+  "points_per_test": 1,
+  "timeout": 300,
+  "tests": [
+    "TestWarehouseSetup.test_get_dir_existing",
+    "TestWarehouseSetup.test_get_dir_non_existing",
+    "TestWarehouseSetup.test_init_creates_directories_with_path_object",
+    "TestWarehouseSetup.test_stat_report",
+    "TestWarehouse.test_warehouse_initialization"
+  ],
+  "solution_files": [
+    "warehouse.py",
+    "warehouse_setup.py"
+  ]
+}

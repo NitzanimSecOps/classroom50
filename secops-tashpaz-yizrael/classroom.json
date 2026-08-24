@@ -1,0 +1,11 @@
+{
+  "schema": "classroom50/classroom/v1",
+  "name": "SecOps תשפ\"ז",
+  "short_name": "secops-tashpaz-yizrael",
+  "term": "תשפז",
+  "org": "NitzanimSecOps",
+  "team": {
+    "id": 19134633,
+    "slug": "classroom50-secops-tashpaz-yizrael"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "slug": "3-1-0-3-storage-wars",
+  "classroom": "secops-tashpaz-beer-sheva",
+  "exercise_id": "3.1.0.3",
+  "points_per_test": 1,
+  "timeout": 300,
+  "tests": [
+    "TestInventoryRecord.test_init_from_bytes",
+    "TestInventoryRecord.test_to_bytes",
+    "TestInventoryRecord.test_to_bytes_round_trip",
+    "TestInventoryDB.test_add_record_file_contains_record_bytes",
+    "TestInventoryDB.test_add_record_writes_named_file",
+    "TestInventoryDB.test_detect_file_type",
+    "TestInventoryDB.test_find_record_missing_returns_none",
+    "TestInventoryDB.test_find_record_returns_inventory_record",
+    "TestInventoryDB.test_find_record_returns_newest",
+    "TestInventoryDB.test_init_creates_directory",
+    "TestInventoryDB.test_remove_record_missing_is_noop",
+    "TestInventoryDB.test_remove_record_removes_newest",
+    "TestWarehouse.test_warehouse_initialization"
+  ],
+  "solution_files": [
+    "inventory_db.py",
+    "inventory_record.py",
+    "warehouse.py"
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "slug": "3-1-0-2-abren",
+  "classroom": "secops-tashpaz-beer-sheva",
+  "exercise_id": "3.1.0.2",
+  "points_per_test": 1,
+  "timeout": 300,
+  "tests": [
+    "TestShipmentManifest.test_find_existing_sku",
+    "TestShipmentManifest.test_find_non_existing_sku",
+    "TestShipmentManifest.test_load_content_parsing",
+    "TestShipmentManifest.test_load_skips_comments_and_blanks",
+    "TestWarehouseLog.test_read_all",
+    "TestWarehouseLog.test_write_format_and_append",
+    "TestWarehouse.test_warehouse_initialization"
+  ],
+  "solution_files": [
+    "shipment_manifest.py",
+    "warehouse.py",
+    "warehouse_log.py"
+  ]
+}

@@ -1,0 +1,405 @@
+{
+  "schema": "classroom50/assignments/v1",
+  "assignments": [
+    {
+      "slug": "1-1-0-7-hive-protocol",
+      "name": "1.1.0.7 Hive Protocol",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": [
+          "self-hosted",
+          "autograder"
+        ]
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-1-1-0-7-hive-protocol",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "1.1.0.7",
+      "_tests": 7
+    },
+    {
+      "slug": "1-99-0-2-major-tom",
+      "name": "1.99.0.2 Major Tom",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": [
+          "self-hosted",
+          "autograder"
+        ]
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-1-99-0-2-major-tom",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "1.99.0.2",
+      "_tests": 5
+    },
+    {
+      "slug": "2-2-1-1-s-os",
+      "name": "2.2.1.1 S.os",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": [
+          "self-hosted",
+          "autograder"
+        ]
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-2-2-1-1-s-os",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "2.2.1.1",
+      "_tests": 10
+    },
+    {
+      "slug": "2-2-1-2-pathing-queen",
+      "name": "2.2.1.2 Pathing Queen",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": [
+          "self-hosted",
+          "autograder"
+        ]
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-2-2-1-2-pathing-queen",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "2.2.1.2",
+      "_tests": 22
+    },
+    {
+      "slug": "2-2-1-3-kisses-of-file",
+      "name": "2.2.1.3 Kisses of File",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": [
+          "self-hosted",
+          "autograder"
+        ]
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-2-2-1-3-kisses-of-file",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "2.2.1.3",
+      "_tests": 15
+    },
+    {
+      "slug": "2-2-1-4-rencoding",
+      "name": "2.2.1.4 RencodING",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": [
+          "self-hosted",
+          "autograder"
+        ]
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-2-2-1-4-rencoding",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "2.2.1.4",
+      "_tests": 7
+    },
+    {
+      "slug": "3-0-0-1-what-to-except-when-you-re",
+      "name": "3.0.0.1 What to Except When You're Excepting",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": [
+          "self-hosted",
+          "autograder"
+        ]
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-3-0-0-1-what-to-except-when-you-re",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "3.0.0.1",
+      "_tests": 7
+    },
+    {
+      "slug": "3-0-0-2-catching",
+      "name": "3.0.0.2 Catching",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": [
+          "self-hosted",
+          "autograder"
+        ]
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-3-0-0-2-catching",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "3.0.0.2",
+      "_tests": 8
+    },
+    {
+      "slug": "3-0-0-3-designer-baby",
+      "name": "3.0.0.3 Designer Baby",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": [
+          "self-hosted",
+          "autograder"
+        ]
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-3-0-0-3-designer-baby",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "3.0.0.3",
+      "_tests": 11
+    },
+    {
+      "slug": "3-1-0-1-midsize-paper-company",
+      "name": "3.1.0.1 Midsize Paper Company",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": [
+          "self-hosted",
+          "autograder"
+        ]
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-3-1-0-1-midsize-paper-company",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "3.1.0.1",
+      "_tests": 5
+    },
+    {
+      "slug": "3-1-0-2-abren",
+      "name": "3.1.0.2 Abren",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": [
+          "self-hosted",
+          "autograder"
+        ]
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-3-1-0-2-abren",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "3.1.0.2",
+      "_tests": 7
+    },
+    {
+      "slug": "3-1-0-3-storage-wars",
+      "name": "3.1.0.3 Storage Wars",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": [
+          "self-hosted",
+          "autograder"
+        ]
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-3-1-0-3-storage-wars",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "3.1.0.3",
+      "_tests": 13
+    },
+    {
+      "slug": "3-1-0-4-hashing",
+      "name": "3.1.0.4 Hashing",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": [
+          "self-hosted",
+          "autograder"
+        ]
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-3-1-0-4-hashing",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "3.1.0.4",
+      "_tests": 4
+    },
+    {
+      "slug": "3-1-0-6-conflict-resolution",
+      "name": "3.1.0.6 Conflict Resolution",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": [
+          "self-hosted",
+          "autograder"
+        ]
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-3-1-0-6-conflict-resolution",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "3.1.0.6",
+      "_tests": 7
+    },
+    {
+      "slug": "4-2-0-1-dreams",
+      "name": "4.2.0.1 Dreams",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": [
+          "self-hosted",
+          "autograder"
+        ]
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-4-2-0-1-dreams",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "4.2.0.1",
+      "_tests": 5
+    },
+    {
+      "slug": "4-2-0-2-you-better-work",
+      "name": "4.2.0.2 You Better Work",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": [
+          "self-hosted",
+          "autograder"
+        ]
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-4-2-0-2-you-better-work",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "4.2.0.2",
+      "_tests": 6
+    },
+    {
+      "slug": "4-2-0-3-locked-in",
+      "name": "4.2.0.3 Locked In",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": [
+          "self-hosted",
+          "autograder"
+        ]
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-4-2-0-3-locked-in",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "4.2.0.3",
+      "_tests": 8
+    },
+    {
+      "slug": "4-2-0-4-fleeting",
+      "name": "4.2.0.4 Fleeting",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": [
+          "self-hosted",
+          "autograder"
+        ]
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-4-2-0-4-fleeting",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "4.2.0.4",
+      "_tests": 4
+    },
+    {
+      "slug": "4-2-0-5-comatose",
+      "name": "4.2.0.5 Comatose",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": [
+          "self-hosted",
+          "autograder"
+        ]
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-4-2-0-5-comatose",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "4.2.0.5",
+      "_tests": 4
+    },
+    {
+      "slug": "4-2-0-6-muj-the-wise",
+      "name": "4.2.0.6 Muj the Wise",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": [
+          "self-hosted",
+          "autograder"
+        ]
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-4-2-0-6-muj-the-wise",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "4.2.0.6",
+      "_tests": 7
+    }
+  ]
+}

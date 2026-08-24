@@ -1,0 +1,16 @@
+{
+  "slug": "4-2-0-4-fleeting",
+  "classroom": "secops-tashpaz-beer-sheva",
+  "exercise_id": "4.2.0.4",
+  "points_per_test": 1,
+  "timeout": 300,
+  "tests": [
+    "test_unknown_unicast_is_transmitted_out_all_but_incoming",
+    "test_broadcast_is_transmitted_out_all_but_incoming",
+    "test_known_unicast_is_transmitted_only_to_learned_port",
+    "test_frame_is_not_transmitted_back_out_incoming_port"
+  ],
+  "solution_files": [
+    "switch.py"
+  ]
+}

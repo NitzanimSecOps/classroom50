@@ -1,0 +1,16 @@
+{
+  "slug": "4-2-0-5-comatose",
+  "classroom": "secops-tashpaz-yizrael",
+  "exercise_id": "4.2.0.5",
+  "points_per_test": 1,
+  "timeout": 300,
+  "tests": [
+    "test_run_floods_unknown_unicast_out_all_but_incoming",
+    "test_run_floods_broadcast_out_all_but_incoming",
+    "test_run_forwards_known_unicast_to_learned_port",
+    "test_run_does_not_send_frame_back_out_incoming_port"
+  ],
+  "solution_files": [
+    "switch.py"
+  ]
+}

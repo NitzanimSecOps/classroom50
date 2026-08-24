@@ -1,0 +1,20 @@
+{
+  "slug": "3-0-0-2-catching",
+  "classroom": "secops-tashpaz-beer-sheva",
+  "exercise_id": "3.0.0.2",
+  "points_per_test": 1,
+  "timeout": 300,
+  "tests": [
+    "test_divide_normal",
+    "test_divide_returns_float",
+    "test_divide_negative",
+    "test_divide_by_zero_returns_zero_float",
+    "test_grab_normal",
+    "test_grab_returns_int",
+    "test_grab_index_out_of_range",
+    "test_grab_not_a_number"
+  ],
+  "solution_files": [
+    "solution.py"
+  ]
+}

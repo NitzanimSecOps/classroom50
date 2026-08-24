@@ -1,0 +1,23 @@
+{
+  "slug": "3-0-0-3-designer-baby",
+  "classroom": "secops-tashpaz-yizrael",
+  "exercise_id": "3.0.0.3",
+  "points_per_test": 1,
+  "timeout": 300,
+  "tests": [
+    "test_baby_is_an_exception",
+    "test_mommy_inherits_baby",
+    "test_stinky_inherits_baby",
+    "test_sum_normal",
+    "test_sum_empty",
+    "test_sum_single",
+    "test_near_thirteen_is_fine",
+    "test_thirteen_in_list_raises",
+    "test_total_equals_thirteen_raises",
+    "test_total_thirteen_with_negatives",
+    "test_raised_error_is_catchable_as_baby"
+  ],
+  "solution_files": [
+    "solution.py"
+  ]
+}

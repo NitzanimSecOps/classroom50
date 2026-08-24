@@ -1,0 +1,17 @@
+{
+  "slug": "1-99-0-2-major-tom",
+  "classroom": "secops-tashpaz-yizrael",
+  "exercise_id": "1.99.0.2",
+  "points_per_test": 1,
+  "timeout": 300,
+  "tests": [
+    "Ensure all mandatory schema keys exist within the output dictionary structure.",
+    "Verify that the parser function returns a dictionary.",
+    "Test parsing of transmission 0 using official reference values.",
+    "Verify Big Endian bounds handling (258) and zero values.",
+    "Verify compound bitmask logic when multiple flags are concurrently set (value 3)."
+  ],
+  "solution_files": [
+    "solution.py"
+  ]
+}

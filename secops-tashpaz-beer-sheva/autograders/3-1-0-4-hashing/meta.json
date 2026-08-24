@@ -1,0 +1,17 @@
+{
+  "slug": "3-1-0-4-hashing",
+  "classroom": "secops-tashpaz-beer-sheva",
+  "exercise_id": "3.1.0.4",
+  "points_per_test": 1,
+  "timeout": 300,
+  "tests": [
+    "TestIntegrityChecker.test_compute",
+    "TestIntegrityChecker.test_save",
+    "TestIntegrityChecker.test_verify_no_changes",
+    "TestIntegrityChecker.test_verify_with_all_discrepancy_types"
+  ],
+  "solution_files": [
+    "integrity_checker.py",
+    "warehouse.py"
+  ]
+}

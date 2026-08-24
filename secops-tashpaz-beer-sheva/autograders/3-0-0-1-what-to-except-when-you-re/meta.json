@@ -1,0 +1,19 @@
+{
+  "slug": "3-0-0-1-what-to-except-when-you-re",
+  "classroom": "secops-tashpaz-beer-sheva",
+  "exercise_id": "3.0.0.1",
+  "points_per_test": 1,
+  "timeout": 300,
+  "tests": [
+    "test_create_zero_division_error_raises_zero_division_error",
+    "test_create_key_error_raises_key_error",
+    "test_create_recursion_error_raises_recursion_error",
+    "test_create_type_error_raises_type_error",
+    "test_create_index_error_raises_index_error",
+    "test_create_file_not_found_error_raises_file_not_found_error",
+    "test_create_name_error_raises_name_error"
+  ],
+  "solution_files": [
+    "exception_generator.py"
+  ]
+}
