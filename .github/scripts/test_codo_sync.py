@@ -158,6 +158,44 @@ def test_reconcile_off_does_not_probe():
          codo_sync.assignment_slugs, codo_sync.repo_exists) = saved
 
 
+def test_teacher_grant_todo():
+    roster, slugs = ["alice", "bob"], ["1-1-0-7-hive", "2-2-1-1-sos"]
+    org_repos = ["demo-1-1-0-7-hive-alice", "demo-2-2-1-1-sos-bob",
+                 "demo-beer-sheva-1-1-0-7-hive-alice",   # DIFFERENT classroom (prefix)
+                 "unrelated"]
+    already = ["demo-1-1-0-7-hive-alice"]                # team already has this one
+    todo = codo_sync.teacher_grant_todo("demo", roster, slugs, org_repos, already)
+    # only bob's existing, not-yet-granted repo; the beer-sheva prefix repo never bleeds in
+    assert todo == ["demo-2-2-1-1-sos-bob"], todo
+
+
+def test_grant_teacher_access_grants_only_diff():
+    saved = (codo_sync._gh_paged, codo_sync._urlopen_retry)
+    puts = []
+
+    def fake_paged(path, token):
+        if path.endswith("/repos") and "/teams/" in path:
+            return [{"name": "demo-1-1-0-7-hive-alice"}]           # already granted
+        if path.startswith("/orgs/org/repos"):
+            return [{"name": "demo-1-1-0-7-hive-alice"}, {"name": "demo-2-2-1-1-sos-bob"}]
+        return []
+
+    class _R:
+        def __enter__(self): return self
+        def __exit__(self, *a): return False
+
+    codo_sync._gh_paged = fake_paged
+    codo_sync._urlopen_retry = lambda req, timeout=0: (puts.append(req.full_url), _R())[1]
+    try:
+        n = codo_sync.grant_teacher_access("org", "demo", ["alice", "bob"],
+                                           ["1-1-0-7-hive", "2-2-1-1-sos"], "admintok")
+        assert n == 1, n
+        assert len(puts) == 1 and puts[0].endswith(
+            "/orgs/org/teams/classroom50-demo-teacher/repos/org/demo-2-2-1-1-sos-bob"), puts
+    finally:
+        codo_sync._gh_paged, codo_sync._urlopen_retry = saved
+
+
 if __name__ == "__main__":
     tests = [v for k, v in sorted(globals().items()) if k.startswith("test_") and callable(v)]
     failed = 0

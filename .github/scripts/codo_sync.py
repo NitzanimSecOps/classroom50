@@ -234,10 +234,61 @@ def submit(api_base, class_id, payload, key):
 
 
 # ---- orchestration ----------------------------------------------------------
-def sync_classroom(root, org, classroom, api_base, key, token, dry_run=False, reconcile=False):
+def teacher_grant_todo(classroom, roster_names, slugs, org_repos, already):
+    """Pure set logic: the student repos that should be shared to the teacher team but
+    aren't yet. Exact `<classroom>-<slug>-<user>` names (never a prefix match, so
+    `secops-tashpaz` can't bleed into `secops-tashpaz-beer-sheva`), intersected with the
+    repos that actually exist, minus what the team already has."""
+    expected = {f"{classroom}-{s}-{u}" for u in roster_names for s in slugs}
+    return sorted((expected & set(org_repos)) - set(already))
+
+
+def grant_teacher_access(org, classroom, roster_names, slugs, admin_token):
+    """Silently grant the `classroom50-<classroom>-teacher` team READ (pull) on each
+    existing student repo, so teachers automatically SEE student work — no per-repo
+    invite and no review-request spam (team grants are silent; we add no CODEOWNERS).
+    `gh student accept` shares the repo with the student only, so this sweep step is what
+    keeps teacher access current as students accept. Idempotent and cheap in steady state:
+    lists the org's repos + the team's repos once, then grants only the diff.
+
+    Needs an admin-scoped token (Administration: write / org owner) — kept OFF the hostile
+    runner; this runs in the trusted sweep. Absent -> caller skips."""
+    team = f"classroom50-{classroom}-teacher"
+    try:
+        already = {r["name"] for r in _gh_paged(f"/orgs/{org}/teams/{team}/repos", admin_token)}
+    except urllib.error.HTTPError as e:
+        if e.code == 404:
+            print(f"::warning::no teacher team {team}; skipping teacher grants")
+            return 0
+        raise
+    org_repos = {r["name"] for r in _gh_paged(f"/orgs/{org}/repos?type=all", admin_token)}
+    granted = 0
+    for repo in teacher_grant_todo(classroom, roster_names, slugs, org_repos, already):
+        req = urllib.request.Request(
+            f"{GH_API}/orgs/{org}/teams/{team}/repos/{org}/{repo}",
+            data=json.dumps({"permission": "pull"}).encode(), method="PUT",
+            headers=_headers(admin_token))
+        try:
+            with _urlopen_retry(req, timeout=30):
+                granted += 1
+        except urllib.error.HTTPError as e:
+            print(f"::warning::teacher-grant {repo} failed ({e.code})")
+    if granted:
+        print(f"  teacher team {team}: +{granted} repo(s) (read)")
+    return granted
+
+
+def sync_classroom(root, org, classroom, api_base, key, token, dry_run=False,
+                   reconcile=False, admin_token=None):
     roster_names = team_members(org, classroom, token)   # the secret team = the roster
     roster = {m.lower() for m in roster_names}
     slugs = assignment_slugs(root, classroom)
+    # Keep teachers' read access current (best-effort — never let it block grade sync).
+    if admin_token and not dry_run:
+        try:
+            grant_teacher_access(org, classroom, roster_names, slugs, admin_token)
+        except Exception as e:  # noqa: BLE001
+            print(f"::warning::{classroom}: teacher-access grant failed: {type(e).__name__}: {e}")
     ok = fail = gaps = 0
     # Iterate the roster × assignments. A group assignment's repo lives under the
     # founder only, so a teammate's own repo 404s (skipped) — they're instead credited
@@ -282,6 +333,9 @@ def main(argv=None):
     api_base = os.environ.get("CODO_API_BASE")
     key = os.environ.get("CODO_COLLECTOR_KEY")
     token = os.environ.get("GH_TOKEN")
+    # Optional admin-scoped token (Administration: write) for the teacher-access grant.
+    # Absent -> the grant step is skipped and grade sync runs exactly as before.
+    admin_token = os.environ.get("GH_TEACHER_ADMIN_TOKEN")
     dry = os.environ.get("DRY_RUN") == "1"
     reconcile = os.environ.get("RECONCILE") == "1"
     need = [k for k, v in [("ORG/GITHUB_REPOSITORY_OWNER", org), ("GH_TOKEN", token),
@@ -300,7 +354,7 @@ def main(argv=None):
         # all retries) is reported and skipped, never allowed to abort the rest.
         try:
             ok, fail = sync_classroom(root, org, c, api_base, key, token,
-                                      dry_run=dry, reconcile=reconcile)
+                                      dry_run=dry, reconcile=reconcile, admin_token=admin_token)
         except Exception as e:  # noqa: BLE001
             hard_fail += 1
             print(f"::error::classroom {c!r} sync aborted: {type(e).__name__}: {e}")

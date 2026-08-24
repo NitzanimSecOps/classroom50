@@ -51,6 +51,12 @@ jobs:
           # Reads the secret team (roster) + student repo releases (grades) — the same
           # fine-grained PAT collect_scores uses. No roster.csv/scores.json involved.
           GH_TOKEN: ${{ secrets.CLASSROOM50_SERVICE_TOKEN }}
+          # Optional admin-scoped token (Administration: write / org owner) so the sweep
+          # grants the `-teacher` team READ on each student repo — teachers auto-see
+          # student work with no invite/review spam. Absent -> grant step is skipped and
+          # grade sync is unchanged. Keep this token OUT of the reusable runner workflow;
+          # it only belongs here in the trusted sweep.
+          GH_TEACHER_ADMIN_TOKEN: ${{ secrets.GH_TEACHER_ADMIN_TOKEN }}
           CLASSROOM_FILTER: ${{ inputs.classroom }}
           RECONCILE: ${{ inputs.reconcile && '1' || '' }}
         run: python .github/scripts/codo_sync.py .
