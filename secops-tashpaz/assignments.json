@@ -2,6 +2,26 @@
   "schema": "classroom50/assignments/v1",
   "assignments": [
     {
+      "slug": "1-1-0-6-jazz",
+      "name": "1.1.0.6 Jazz",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": [
+          "self-hosted",
+          "autograder"
+        ]
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-1-1-0-6-jazz",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "1.1.0.6",
+      "_tests": 5
+    },
+    {
       "slug": "1-1-0-7-hive-protocol",
       "name": "1.1.0.7 Hive Protocol",
       "mode": "individual",
