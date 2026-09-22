@@ -40,6 +40,13 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
+      - name: Mint installation token
+        id: app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.GRADER_APP_ID }}
+          private-key: ${{ secrets.GRADER_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}   # org-wide (all NitzanimSecOps repos)
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
@@ -48,15 +55,14 @@ jobs:
         env:
           CODO_API_BASE: ${{ vars.CODO_API_BASE }}
           CODO_COLLECTOR_KEY: ${{ secrets.CODO_COLLECTOR_KEY }}
-          # Reads the secret team (roster) + student repo releases (grades) — the same
-          # fine-grained PAT collect_scores uses. No roster.csv/scores.json involved.
-          GH_TOKEN: ${{ secrets.CLASSROOM50_SERVICE_TOKEN }}
-          # Optional admin-scoped token (Administration: write / org owner) so the sweep
-          # grants the `-teacher` team READ on each student repo — teachers auto-see
-          # student work with no invite/review spam. Absent -> grant step is skipped and
-          # grade sync is unchanged. Keep this token OUT of the reusable runner workflow;
-          # it only belongs here in the trusted sweep.
-          GH_TEACHER_ADMIN_TOKEN: ${{ secrets.GH_TEACHER_ADMIN_TOKEN }}
+          # Reads the secret team (roster) + student repo releases (grades) via the
+          # shared GitHub App installation token. No roster.csv/scores.json involved.
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          # Admin-scoped grant (Administration: write) so the sweep grants the `-teacher`
+          # team READ on each student repo — teachers auto-see student work with no
+          # invite/review spam. The App's installation token carries this scope, so the
+          # same token serves both reads and the teacher grant.
+          GH_TEACHER_ADMIN_TOKEN: ${{ steps.app-token.outputs.token }}
           CLASSROOM_FILTER: ${{ inputs.classroom }}
           RECONCILE: ${{ inputs.reconcile && '1' || '' }}
         run: python .github/scripts/codo_sync.py .

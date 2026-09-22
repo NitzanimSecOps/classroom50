@@ -72,6 +72,14 @@ jobs:
     # just be run again.
     timeout-minutes: 120
     steps:
+      - name: Mint installation token
+        id: app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.GRADER_APP_ID }}
+          private-key: ${{ secrets.GRADER_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}   # org-wide (all NitzanimSecOps repos)
+
       - uses: actions/checkout@v7
 
       - uses: actions/setup-python@v7
@@ -87,8 +95,8 @@ jobs:
           # submit/* tag for a never-graded repo (the first-grade fallback)
           # needs Contents: write; listing the classroom team (regrade is
           # team-driven, mirroring collect) needs Members: Read. Shared with
-          # collect-scores.yaml. Rotated via `gh teacher rotate-service-token <org>`.
-          CLASSROOM50_SERVICE_TOKEN: ${{ secrets.CLASSROOM50_SERVICE_TOKEN }}
+          # collect-scores.yaml. Now sourced from the shared GitHub App, not a PAT.
+          CLASSROOM50_SERVICE_TOKEN: ${{ steps.app-token.outputs.token }}
           CLASSROOM_FILTER: ${{ github.event.inputs.classroom }}
           ASSIGNMENT_FILTER: ${{ github.event.inputs.assignment }}
           OWNER_FILTER: ${{ github.event.inputs.owner || '' }}
