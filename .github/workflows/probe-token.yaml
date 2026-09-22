@@ -28,6 +28,14 @@ jobs:
   probe:
     runs-on: ubuntu-latest
     steps:
+      - name: Mint installation token
+        id: app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.GRADER_APP_ID }}
+          private-key: ${{ secrets.GRADER_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}   # org-wide (all NitzanimSecOps repos)
+
       - uses: actions/checkout@v7
 
       - uses: actions/setup-python@v7
@@ -36,9 +44,9 @@ jobs:
 
       - name: Probe the service token
         env:
-          # The fine-grained PAT under test. The probe touches every scope the
-          # token requests (Contents R/W, Actions R/W, Organization Members: R,
-          # Metadata: R) with read-only calls. Rotated via
-          # `gh teacher rotate-service-token <org>`.
-          CLASSROOM50_SERVICE_TOKEN: ${{ secrets.CLASSROOM50_SERVICE_TOKEN }}
+          # The shared GitHub App installation token under test. The probe touches
+          # every scope the pipeline needs (Contents R/W, Actions R/W, Organization
+          # Members: R, Metadata: R) with read-only calls. Run this after wiring the
+          # App or any time collect-scores / regrade fails with a 401/403.
+          CLASSROOM50_SERVICE_TOKEN: ${{ steps.app-token.outputs.token }}
         run: python3 .github/scripts/probe_token.py

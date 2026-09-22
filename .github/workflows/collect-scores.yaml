@@ -36,6 +36,14 @@ jobs:
   collect:
     runs-on: ubuntu-latest
     steps:
+      - name: Mint installation token
+        id: app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.GRADER_APP_ID }}
+          private-key: ${{ secrets.GRADER_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}   # org-wide (all NitzanimSecOps repos)
+
       - uses: actions/checkout@v7
 
       - uses: actions/setup-python@v7
@@ -54,8 +62,8 @@ jobs:
           # (team members, releases + result.json) and grants team access;
           # the contents-write scope is shared with regrade.yaml, which
           # pushes submit/* tags.
-          # Rotated via `gh teacher rotate-service-token <org>`.
-          CLASSROOM50_SERVICE_TOKEN: ${{ secrets.CLASSROOM50_SERVICE_TOKEN }}
+          # Now sourced from the shared GitHub App (installation token), not a PAT.
+          CLASSROOM50_SERVICE_TOKEN: ${{ steps.app-token.outputs.token }}
           # Optional restriction to a single classroom; empty
           # means "collect all classrooms in this config repo".
           CLASSROOM_FILTER: ${{ github.event.inputs.classroom || '' }}
