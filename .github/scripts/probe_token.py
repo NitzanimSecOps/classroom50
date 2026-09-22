@@ -180,12 +180,29 @@ def check_config_contents_and_write(api_url: str, org: str, token: str) -> list[
             Check("Contents: Write (config repo)", False, "not checked — the config-repo read failed above"),
             Check("Administration: Write (config repo)", False, "not checked — the config-repo read failed above"),
         ]
+    read_ok = Check("Contents: Read (config repo)", True, f"{org}/{CONFIG_REPO} is readable")
+    # GitHub App installation tokens (ghs_) do NOT populate the legacy
+    # permissions.push/admin booleans on GET /repos — the object reads pull-only
+    # even when the app has contents:write / administration:write. Those write
+    # scopes are granted at the INSTALLATION level (uniform across every repo the
+    # app can reach), so the per-repo boolean proxy simply doesn't apply. Report
+    # them as skipped-with-note instead of a false failure; a genuinely missing
+    # scope still surfaces on the first real write in collect/regrade. (Confirm
+    # the grant on the App: Repository -> Contents R/W + Administration R/W.)
+    if token.startswith("ghs_"):
+        note = ("app installation token — GitHub omits permissions.push/admin for "
+                "app tokens; granted at the installation, not probeable per-repo")
+        return [
+            read_ok,
+            Check("Contents: Write (config repo)", True, note, skipped=True),
+            Check("Administration: Write (config repo)", True, note, skipped=True),
+        ]
     permissions = repo.get("permissions") if isinstance(repo, dict) else None
     permissions = permissions if isinstance(permissions, dict) else {}
     push = bool(permissions.get("push"))
     admin = bool(permissions.get("admin"))
     return [
-        Check("Contents: Read (config repo)", True, f"{org}/{CONFIG_REPO} is readable"),
+        read_ok,
         Check(
             "Contents: Write (config repo)",
             push,
