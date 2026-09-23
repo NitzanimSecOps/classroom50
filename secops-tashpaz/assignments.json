@@ -2,6 +2,26 @@
   "schema": "classroom50/assignments/v1",
   "assignments": [
     {
+      "slug": "0-0-0-1-hello",
+      "name": "0.0.0.1 Hello, World",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": [
+          "self-hosted",
+          "autograder"
+        ]
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-0-0-0-1-hello",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "0.0.0.1",
+      "_tests": 2
+    },
+    {
       "slug": "1-1-0-6-jazz",
       "name": "1.1.0.6 Jazz",
       "mode": "individual",

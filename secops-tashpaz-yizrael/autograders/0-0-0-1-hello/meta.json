@@ -1,0 +1,14 @@
+{
+  "slug": "0-0-0-1-hello",
+  "classroom": "secops-tashpaz-yizrael",
+  "exercise_id": "0.0.0.1",
+  "points_per_test": 1,
+  "timeout": 300,
+  "tests": [
+    "hello() returns a str value (not None, and not printed to stdout).",
+    "hello() returns exactly the string \"Hello, World!\"."
+  ],
+  "solution_files": [
+    "hello.py"
+  ]
+}

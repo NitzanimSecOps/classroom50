@@ -1,0 +1,11 @@
+{
+  "schema": "classroom50/classroom/v1",
+  "name": "instructors",
+  "short_name": "instructors",
+  "term": "test",
+  "org": "NitzanimSecOps",
+  "team": {
+    "id": 19660508,
+    "slug": "classroom50-instructors"
+  }
+}
