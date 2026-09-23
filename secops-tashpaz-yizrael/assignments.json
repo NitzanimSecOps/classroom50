@@ -2,7 +2,7 @@
   "schema": "classroom50/assignments/v1",
   "assignments": [
     {
-      "slug": "0-0-0-3-hello",
+      "slug": "0-0-0-3-hello-world",
       "name": "0.0.0.3 Hello, World",
       "mode": "individual",
       "autograder": "default",
@@ -14,7 +14,7 @@
       },
       "template": {
         "owner": "NitzanimSecOps",
-        "repo": "secops-0-0-0-3-hello",
+        "repo": "secops-0-0-0-3-hello-world",
         "branch": "main"
       },
       "feedback_pr": true,
