@@ -1,0 +1,17 @@
+{
+  "slug": "1-1-0-6-jazz",
+  "classroom": "secops-tashpaz-yizrael",
+  "exercise_id": "1.1.0.6",
+  "points_per_test": 1,
+  "timeout": 300,
+  "tests": [
+    "0xFF: pollen 1, field 3, hive 31 (every field at its maximum).",
+    "0x00: every field is zero.",
+    "0xA4 (0b10100100): field_id must be shifted down to 1, not left as 0b0100000.",
+    "0b00010000: no pollen, field 0, hive 16 (the spec's second example).",
+    "0b11101010: pollen found, field 3, hive 10 (the spec's worked example)."
+  ],
+  "solution_files": [
+    "bee_report.py"
+  ]
+}
