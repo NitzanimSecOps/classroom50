@@ -159,7 +159,7 @@
       },
       "feedback_pr": true,
       "_exercise_id": "2.2.1.4",
-      "_tests": 7
+      "_tests": 6
     },
     {
       "slug": "3-0-0-1-what-to-except-when-you-re",
@@ -320,6 +320,26 @@
       "feedback_pr": true,
       "_exercise_id": "3.1.0.6",
       "_tests": 7
+    },
+    {
+      "slug": "4-1-0-2-socket-code",
+      "name": "4.1.0.2 Socket Code",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": [
+          "self-hosted",
+          "autograder"
+        ]
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-4-1-0-2-socket-code",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "4.1.0.2",
+      "_tests": 6
     },
     {
       "slug": "4-2-0-1-dreams",

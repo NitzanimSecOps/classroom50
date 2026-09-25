@@ -1,0 +1,18 @@
+{
+  "slug": "4-1-0-2-socket-code",
+  "classroom": "secops-tashpaz",
+  "exercise_id": "4.1.0.2",
+  "points_per_test": 1,
+  "timeout": 300,
+  "tests": [
+    "make_socket() creates socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL)).",
+    "make_socket() binds the socket to the interface it was given.",
+    "make_socket() returns the socket it created.",
+    "receive_frame() returns the bytes recv() read from the socket.",
+    "receive_frame() asks recv() for at least 1514 bytes, enough for any Ethernet frame.",
+    "close_socket() closes the socket it was given."
+  ],
+  "solution_files": [
+    "solution.py"
+  ]
+}

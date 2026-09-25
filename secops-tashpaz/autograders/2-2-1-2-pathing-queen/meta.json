@@ -7,12 +7,12 @@
   "tests": [
     "join_paths(Path(\"a\"), Path(\"b\")) returns Path(\"a/b\").",
     "join_paths joins longer paths: a/b + c/d -> a/b/c/d.",
-    "find() finds a file two folders deep (sub/deep/target.txt).",
-    "find() returns None when no file has that name.",
-    "count_files_by_extension() counts .txt files in every subfolder (3 of them).",
+    "find() returns the path of a file that is in the folder.",
+    "find() returns None when no file in the folder has that name.",
+    "count_files_by_extension() counts the .txt files in the folder (2 of them).",
     "count_files_by_extension() returns 0 when no file has that extension.",
     "get_last_modified_file() returns the file that was modified last.",
-    "get_last_modified_file() also looks inside subfolders."
+    "get_last_modified_file() goes by modification time, not by file name."
   ],
   "solution_files": [
     "solution.py"

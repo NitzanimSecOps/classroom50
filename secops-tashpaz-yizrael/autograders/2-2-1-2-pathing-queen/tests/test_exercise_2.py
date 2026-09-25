@@ -21,24 +21,16 @@ def make_file(path: Path, mtime: float | None = None) -> Path:
 
 
 @pytest.fixture
-def tree(tmp_path):
+def folder(tmp_path):
     """
-    tmp_path/
+    tmp_path/            (one flat folder -- the functions don't look inside subfolders)
     ├── notes.txt
-    ├── run.exe
-    ├── sub/
-    │   ├── report.txt
-    │   └── deep/
-    │       ├── target.txt
-    │       └── archive.zip
-    └── empty_dir/
+    ├── todo.txt
+    └── run.exe
     """
     make_file(tmp_path / "notes.txt")
+    make_file(tmp_path / "todo.txt")
     make_file(tmp_path / "run.exe")
-    make_file(tmp_path / "sub" / "report.txt")
-    make_file(tmp_path / "sub" / "deep" / "target.txt")
-    make_file(tmp_path / "sub" / "deep" / "archive.zip")
-    (tmp_path / "empty_dir").mkdir()
     return tmp_path
 
 
@@ -54,24 +46,23 @@ class TestJoinPaths:
 
 
 class TestFind:
-    def test_finds_file_deeply_nested(self, tree):
-        """find() finds a file two folders deep (sub/deep/target.txt)."""
-        assert find("target.txt", tree) == tree / "sub" / "deep" / "target.txt"
+    def test_finds_file_in_folder(self, folder):
+        """find() returns the path of a file that is in the folder."""
+        assert find("todo.txt", folder) == folder / "todo.txt"
 
-    def test_returns_none_when_not_found(self, tree):
-        """find() returns None when no file has that name."""
-        assert find("nonexistent.txt", tree) is None
+    def test_returns_none_when_not_found(self, folder):
+        """find() returns None when no file in the folder has that name."""
+        assert find("nonexistent.txt", folder) is None
 
 
 class TestCountFilesByExtension:
-    def test_counts_recursively_across_all_levels(self, tree):
-        """count_files_by_extension() counts .txt files in every subfolder (3 of them)."""
-        # notes.txt + sub/report.txt + sub/deep/target.txt
-        assert count_files_by_extension(".txt", tree) == 3
+    def test_counts_files_with_extension(self, folder):
+        """count_files_by_extension() counts the .txt files in the folder (2 of them)."""
+        assert count_files_by_extension(".txt", folder) == 2
 
-    def test_returns_zero_when_no_matches(self, tree):
+    def test_returns_zero_when_no_matches(self, folder):
         """count_files_by_extension() returns 0 when no file has that extension."""
-        assert count_files_by_extension(".pdf", tree) == 0
+        assert count_files_by_extension(".pdf", folder) == 0
 
 
 class TestGetLastEdited:
@@ -82,11 +73,11 @@ class TestGetLastEdited:
         make_file(tmp_path / "middle.txt", mtime=2_000_000)
         assert get_last_modified_file(tmp_path) == tmp_path / "newest.txt"
 
-    def test_finds_newest_file_in_nested_directory(self, tmp_path):
-        """get_last_modified_file() also looks inside subfolders."""
-        make_file(tmp_path / "top.txt", mtime=1_000_000)
-        make_file(tmp_path / "sub" / "deep" / "buried.txt", mtime=9_000_000)
-        assert get_last_modified_file(tmp_path) == tmp_path / "sub" / "deep" / "buried.txt"
+    def test_goes_by_time_not_by_name(self, tmp_path):
+        """get_last_modified_file() goes by modification time, not by file name."""
+        make_file(tmp_path / "zzz.txt", mtime=1_000_000)
+        make_file(tmp_path / "aaa.exe", mtime=5_000_000)
+        assert get_last_modified_file(tmp_path) == tmp_path / "aaa.exe"
 
 
 if __name__ == "__main__":
