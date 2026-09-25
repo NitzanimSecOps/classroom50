@@ -11,7 +11,8 @@
     "Test that Honey Weight (Byte 4) is parsed correctly.",
     "Test that verify_packet() catches a corrupted payload.",
     "Test that verify_packet() catches a bad version number.",
-    "Test that verify_packet() returns True for a valid packet."
+    "Test that verify_packet() returns True for a valid packet.",
+    "Test that hive_packet.py uses the struct module to parse the packet."
   ],
   "solution_files": [
     "hive_packet.py"

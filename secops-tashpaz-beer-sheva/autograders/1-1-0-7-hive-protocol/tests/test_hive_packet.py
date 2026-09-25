@@ -46,5 +46,27 @@ class TestHivePacket(unittest.TestCase):
         bad_packet = HivePacket(invalid_raw_packet)
         self.assertFalse(bad_packet.verify_packet(), "verify_packet should return False if version is not 1")
 
+    def test_written_with_struct(self):
+        """Test that hive_packet.py uses the struct module to parse the packet."""
+        import ast
+        import inspect
+        import hive_packet
+        tree = ast.parse(inspect.getsource(hive_packet))
+        modules, functions = set(), set()   # names bound to the struct module / its functions
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Import):
+                modules |= {a.asname or a.name for a in node.names if a.name == "struct"}
+            elif isinstance(node, ast.ImportFrom) and node.module == "struct":
+                functions |= {a.asname or a.name for a in node.names}
+        used = any(
+            isinstance(node, ast.Call) and (
+                (isinstance(node.func, ast.Attribute) and isinstance(node.func.value, ast.Name)
+                 and node.func.value.id in modules)
+                or (isinstance(node.func, ast.Name) and node.func.id in functions))
+            for node in ast.walk(tree))
+        self.assertTrue(used, "hive_packet.py should parse the packet with the struct module "
+                              "(e.g. struct.unpack), not only by hand")
+
+
 if __name__ == '__main__':
     unittest.main(verbosity=2)
