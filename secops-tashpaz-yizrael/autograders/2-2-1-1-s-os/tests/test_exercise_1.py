@@ -23,26 +23,27 @@ SOLUTION_MODULE = "solution"
 class TestGetLoggedInUser:
     @patch(f"{SOLUTION_MODULE}.os.getlogin", return_value="shuro")
     def test_returns_os_getlogin_result(self, mock_getlogin):
+        """get_logged_in_user() returns the logged-in user's name."""
         assert get_logged_in_user() == "shuro"
         mock_getlogin.assert_called_once()
 
 
 class TestGetUserDirectory:
     @patch(f"{SOLUTION_MODULE}.os.listdir")
-    @patch(f"{SOLUTION_MODULE}.os.path.expanduser", return_value=os.path.join("Users_root", "current_user"))
     @patch(f"{SOLUTION_MODULE}.get_logged_in_user", return_value="shuro")
-    def test_lists_files_in_logged_in_users_home_directory(self, mock_user, mock_expanduser, mock_listdir):
+    def test_lists_files_in_logged_in_users_home_directory(self, mock_user, mock_listdir):
+        """get_user_directory() lists the logged-in user's home folder, /home/<user>."""
         mock_listdir.return_value = ["Desktop", "Documents", "Downloads"]
         result = get_user_directory()
         assert result == ["Desktop", "Documents", "Downloads"]
-        mock_listdir.assert_called_once_with(os.path.join("Users_root", "shuro"))
+        mock_listdir.assert_called_once_with("/home/shuro")
 
     @patch(f"{SOLUTION_MODULE}.os.listdir")
-    @patch(f"{SOLUTION_MODULE}.os.path.expanduser", return_value=os.path.join("Users_root", "current_user"))
     @patch(f"{SOLUTION_MODULE}.get_logged_in_user", return_value="alex")
-    def test_uses_current_logged_in_user_not_a_hardcoded_name(self, mock_user, mock_expanduser, mock_listdir):
+    def test_uses_current_logged_in_user_not_a_hardcoded_name(self, mock_user, mock_listdir):
+        """get_user_directory() uses the logged-in user's name, not a hard-coded one."""
         get_user_directory()
-        mock_listdir.assert_called_once_with(os.path.join("Users_root", "alex"))
+        mock_listdir.assert_called_once_with("/home/alex")
 
 
 class TestMakeUserFolder:
@@ -54,12 +55,14 @@ class TestMakeUserFolder:
 
     @patch(f"{SOLUTION_MODULE}.get_logged_in_user", return_value="shuro")
     def test_creates_folder_and_returns_true(self, mock_user, tmp_path):
+        """make_user_folder() creates <user>s_cool_folder and returns True."""
         result = make_user_folder(str(tmp_path))
         assert result is True
         assert (tmp_path / "shuros_cool_folder").is_dir()
 
     @patch(f"{SOLUTION_MODULE}.get_logged_in_user", return_value="shuro")
     def test_existing_target_folder_returns_false(self, mock_user, tmp_path):
+        """make_user_folder() returns False when the folder already exists."""
         (tmp_path / "shuros_cool_folder").mkdir()
         result = make_user_folder(str(tmp_path))
         assert result is False
@@ -68,6 +71,7 @@ class TestMakeUserFolder:
 
     @patch(f"{SOLUTION_MODULE}.get_logged_in_user", return_value="shuro")
     def test_nonexistent_base_path_returns_false(self, mock_user, tmp_path):
+        """make_user_folder() returns False (and creates nothing) when the base path doesn't exist."""
         missing_base = tmp_path / "does_not_exist"
         result = make_user_folder(str(missing_base))
         assert result is False
@@ -76,6 +80,7 @@ class TestMakeUserFolder:
 
     @patch(f"{SOLUTION_MODULE}.get_logged_in_user", return_value="alex")
     def test_folder_name_uses_current_user(self, mock_user, tmp_path):
+        """make_user_folder() names the folder after the logged-in user."""
         result = make_user_folder(str(tmp_path))
         assert result is True
         assert (tmp_path / "alexs_cool_folder").is_dir()
@@ -89,17 +94,20 @@ class TestRelativeToAbsolute:
     """
 
     def test_relative_path_resolved_against_cwd(self, tmp_path, monkeypatch):
+        """Bonus: relative_to_absolute() resolves a relative path from the current folder."""
         monkeypatch.chdir(tmp_path)
         expected = os.path.join(str(tmp_path), "subfolder")
         assert relative_to_absolute("subfolder") == expected
 
     def test_nested_relative_path(self, tmp_path, monkeypatch):
+        """Bonus: relative_to_absolute() resolves a nested relative path (a/b/c)."""
         monkeypatch.chdir(tmp_path)
         nested = os.path.join("a", "b", "c")
         expected = os.path.join(str(tmp_path), "a", "b", "c")
         assert relative_to_absolute(nested) == expected
 
     def test_already_absolute_path_returned_unchanged(self, tmp_path):
+        """Bonus: relative_to_absolute() returns an absolute path unchanged."""
         absolute = str(tmp_path)
         assert relative_to_absolute(absolute) == absolute
 

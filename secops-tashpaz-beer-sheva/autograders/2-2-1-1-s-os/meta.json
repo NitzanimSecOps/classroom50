@@ -5,16 +5,16 @@
   "points_per_test": 1,
   "timeout": 300,
   "tests": [
-    "TestGetLoggedInUser.test_returns_os_getlogin_result",
-    "TestGetUserDirectory.test_lists_files_in_logged_in_users_home_directory",
-    "TestGetUserDirectory.test_uses_current_logged_in_user_not_a_hardcoded_name",
-    "TestMakeUserFolder.test_creates_folder_and_returns_true",
-    "TestMakeUserFolder.test_existing_target_folder_returns_false",
-    "TestMakeUserFolder.test_nonexistent_base_path_returns_false",
-    "TestMakeUserFolder.test_folder_name_uses_current_user",
-    "TestRelativeToAbsolute.test_relative_path_resolved_against_cwd",
-    "TestRelativeToAbsolute.test_nested_relative_path",
-    "TestRelativeToAbsolute.test_already_absolute_path_returned_unchanged"
+    "get_logged_in_user() returns the logged-in user's name.",
+    "get_user_directory() lists the logged-in user's home folder, /home/<user>.",
+    "get_user_directory() uses the logged-in user's name, not a hard-coded one.",
+    "make_user_folder() creates <user>s_cool_folder and returns True.",
+    "make_user_folder() returns False when the folder already exists.",
+    "make_user_folder() returns False (and creates nothing) when the base path doesn't exist.",
+    "make_user_folder() names the folder after the logged-in user.",
+    "Bonus: relative_to_absolute() resolves a relative path from the current folder.",
+    "Bonus: relative_to_absolute() resolves a nested relative path (a/b/c).",
+    "Bonus: relative_to_absolute() returns an absolute path unchanged."
   ],
   "solution_files": [
     "solution.py"
