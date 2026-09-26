@@ -3,7 +3,7 @@
   "assignments": [
     {
       "slug": "0-0-0-3-hello-world",
-      "name": "0.0.0.3 Hello, World",
+      "name": "0.0.0.3 Hello World",
       "mode": "individual",
       "autograder": "default",
       "runtime": {
@@ -460,6 +460,26 @@
       "feedback_pr": true,
       "_exercise_id": "4.2.0.6",
       "_tests": 7
+    },
+    {
+      "slug": "5-1-0-1-yip-yip",
+      "name": "5.1.0.1 Yip Yip",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": [
+          "self-hosted",
+          "autograder"
+        ]
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-5-1-0-1-yip-yip",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "5.1.0.1",
+      "_tests": 13
     }
   ]
 }
