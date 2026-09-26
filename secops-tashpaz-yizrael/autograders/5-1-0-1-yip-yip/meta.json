@@ -1,0 +1,25 @@
+{
+  "slug": "5-1-0-1-yip-yip",
+  "classroom": "secops-tashpaz-yizrael",
+  "exercise_id": "5.1.0.1",
+  "points_per_test": 1,
+  "timeout": 300,
+  "tests": [
+    "version is parsed from the high 4 bits of the first byte (4).",
+    "ihl is parsed from the low 4 bits of the first byte (5 = a 20-byte header).",
+    "total_length is parsed as a big-endian number.",
+    "ttl is parsed correctly.",
+    "protocol is parsed correctly (17 = UDP).",
+    "src_ip is parsed into a readable string like '192.168.1.10'.",
+    "dst_ip is parsed into a readable string like '8.8.4.4'.",
+    "payload holds exactly the data after a 20-byte header.",
+    "A header carrying options is parsed with its real ihl (7 = a 28-byte header).",
+    "With options, payload starts after ihl * 4 bytes and holds no header data.",
+    "The fields of a packet with options are parsed correctly as well.",
+    "_convert_bytes_to_ip(b'\\xC0\\xA8\\x01\\x01') returns '192.168.1.1'.",
+    "_convert_bytes_to_ip handles 0, 255 and single-digit bytes."
+  ],
+  "solution_files": [
+    "ipv4.py"
+  ]
+}
