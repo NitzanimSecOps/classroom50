@@ -1,0 +1,21 @@
+{
+  "slug": "5-1-0-2-scent-trail",
+  "classroom": "secops-tashpaz",
+  "exercise_id": "5.1.0.2",
+  "points_per_test": 1,
+  "timeout": 300,
+  "tests": [
+    "RouteEntry keeps network, mask, next_hop and interface.",
+    "RouteEntry takes its fields in the order network, mask, next_hop, interface.",
+    "A directly connected route has next_hop None.",
+    "A new RoutingTable starts with an empty entries list.",
+    "add_route() appends each RouteEntry to entries, in the order added.",
+    "Two RoutingTable objects keep separate entries.",
+    "str(table) returns a string.",
+    "str(table) shows the network, mask, next hop and interface of every route.",
+    "str(table) prints each route on its own line."
+  ],
+  "solution_files": [
+    "routing.py"
+  ]
+}

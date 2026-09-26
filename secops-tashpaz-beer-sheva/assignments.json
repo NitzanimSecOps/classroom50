@@ -480,6 +480,106 @@
       "feedback_pr": true,
       "_exercise_id": "5.1.0.1",
       "_tests": 13
+    },
+    {
+      "slug": "5-1-0-2-scent-trail",
+      "name": "5.1.0.2 Scent Trail",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": [
+          "self-hosted",
+          "autograder"
+        ]
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-5-1-0-2-scent-trail",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "5.1.0.2",
+      "_tests": 9
+    },
+    {
+      "slug": "5-1-0-3-longest-leash",
+      "name": "5.1.0.3 Longest Leash",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": [
+          "self-hosted",
+          "autograder"
+        ]
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-5-1-0-3-longest-leash",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "5.1.0.3",
+      "_tests": 10
+    },
+    {
+      "slug": "5-1-0-4-arf",
+      "name": "5.1.0.4 Arf",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": [
+          "self-hosted",
+          "autograder"
+        ]
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-5-1-0-4-arf",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "5.1.0.4",
+      "_tests": 11
+    },
+    {
+      "slug": "5-1-0-5-fetch",
+      "name": "5.1.0.5 Fetch",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": [
+          "self-hosted",
+          "autograder"
+        ]
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-5-1-0-5-fetch",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "5.1.0.5",
+      "_tests": 10
+    },
+    {
+      "slug": "5-1-0-6-who-let-the-dogs-out",
+      "name": "5.1.0.6 Who Let the Dogs Out",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": [
+          "self-hosted",
+          "autograder"
+        ]
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-5-1-0-6-who-let-the-dogs-out",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "5.1.0.6",
+      "_tests": 9
     }
   ]
 }

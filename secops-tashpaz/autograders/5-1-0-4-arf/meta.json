@@ -1,0 +1,24 @@
+{
+  "slug": "5-1-0-4-arf",
+  "classroom": "secops-tashpaz",
+  "exercise_id": "5.1.0.4",
+  "points_per_test": 1,
+  "timeout": 300,
+  "tests": [
+    "A new ARPTable starts with an empty table dict.",
+    "lookup() returns the MAC that learn() stored for an IP.",
+    "learn() stores the entry in the table dict as ip -> mac.",
+    "lookup() returns None for an IP that was never learned (no exception).",
+    "Learning an IP again replaces its old MAC.",
+    "Two ARPTable objects keep separate tables.",
+    "Host(ip, mac) stores its own ip and mac.",
+    "A new Host has an empty RoutingTable in routing_table.",
+    "A new Host has an empty ARPTable in arp_table.",
+    "Each Host gets its own routing table and ARP table.",
+    "A host can route to a gateway and find the gateway's MAC."
+  ],
+  "solution_files": [
+    "arp.py",
+    "host.py"
+  ]
+}

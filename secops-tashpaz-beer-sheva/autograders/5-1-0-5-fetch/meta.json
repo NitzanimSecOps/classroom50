@@ -1,0 +1,22 @@
+{
+  "slug": "5-1-0-5-fetch",
+  "classroom": "secops-tashpaz-beer-sheva",
+  "exercise_id": "5.1.0.5",
+  "points_per_test": 1,
+  "timeout": 300,
+  "tests": [
+    "A packet addressed to the host's own IP is delivered with its payload.",
+    "A packet for a directly connected neighbor is forwarded to the neighbor's own MAC.",
+    "A packet for a remote network is forwarded to the gateway's MAC (next_hop), not the destination's.",
+    "The most specific matching route decides the interface and next hop.",
+    "With a default route, a packet to an unknown network goes to the default gateway.",
+    "A packet with no matching route is dropped.",
+    "A packet for a neighbor missing from the ARP table is dropped.",
+    "A packet whose gateway is missing from the ARP table is dropped.",
+    "A packet whose version is not 4 is dropped.",
+    "A packet shorter than an IPv4 header (20 bytes) is dropped without crashing."
+  ],
+  "solution_files": [
+    "host.py"
+  ]
+}

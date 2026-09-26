@@ -1,0 +1,22 @@
+{
+  "slug": "5-1-0-3-longest-leash",
+  "classroom": "secops-tashpaz-beer-sheva",
+  "exercise_id": "5.1.0.3",
+  "points_per_test": 1,
+  "timeout": 300,
+  "tests": [
+    "ip_matches_route() returns True for an IP inside the route's network.",
+    "ip_matches_route() returns False for an IP outside the route's network.",
+    "ip_matches_route() works with /8 and /16 masks.",
+    "ip_matches_route() works with a mask like 255.255.240.0 (bitmasking, not string compare).",
+    "The default route 0.0.0.0/0.0.0.0 matches any IP.",
+    "lookup() returns the matching route with the longest mask.",
+    "lookup() falls back to a shorter mask when the longer ones don't match.",
+    "lookup() returns the default route when nothing more specific matches.",
+    "lookup() finds the longest prefix whatever order the routes were added in.",
+    "lookup() returns None when no route matches (no default route, or an empty table)."
+  ],
+  "solution_files": [
+    "routing.py"
+  ]
+}

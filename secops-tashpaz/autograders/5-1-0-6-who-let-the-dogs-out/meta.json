@@ -1,0 +1,21 @@
+{
+  "slug": "5-1-0-6-who-let-the-dogs-out",
+  "classroom": "secops-tashpaz",
+  "exercise_id": "5.1.0.6",
+  "points_per_test": 1,
+  "timeout": 300,
+  "tests": [
+    "forward_packet() sends exactly one frame through the socket.",
+    "The frame's destination MAC (first 6 bytes) is next_mac.",
+    "The frame's source MAC (bytes 6-12) is the host's own MAC.",
+    "The frame's ethertype is 0x0800 (IPv4), in big endian.",
+    "After the 14-byte Ethernet header, the frame carries the IP packet unchanged.",
+    "The frame is sent through a raw AF_PACKET socket.",
+    "The frame goes out of the interface forward_packet() was given.",
+    "process_packet() of a routed packet sends a frame to the gateway's MAC via the route's interface.",
+    "Only forwarded packets go on the wire — delivered and dropped ones send nothing."
+  ],
+  "solution_files": [
+    "host.py"
+  ]
+}
