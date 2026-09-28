@@ -1,0 +1,22 @@
+{
+  "slug": "2-2-1-1-s-os",
+  "classroom": "secops-tashpaz-online",
+  "exercise_id": "2.2.1.1",
+  "points_per_test": 1,
+  "timeout": 300,
+  "tests": [
+    "get_logged_in_user() returns the logged-in user's name.",
+    "get_user_directory() lists the logged-in user's home folder, /home/<user>.",
+    "get_user_directory() uses the logged-in user's name, not a hard-coded one.",
+    "make_user_folder() creates <user>s_cool_folder and returns True.",
+    "make_user_folder() returns False when the folder already exists.",
+    "make_user_folder() returns False (and creates nothing) when the base path doesn't exist.",
+    "make_user_folder() names the folder after the logged-in user.",
+    "Bonus: relative_to_absolute() resolves a relative path from the current folder.",
+    "Bonus: relative_to_absolute() resolves a nested relative path (a/b/c).",
+    "Bonus: relative_to_absolute() returns an absolute path unchanged."
+  ],
+  "solution_files": [
+    "solution.py"
+  ]
+}
