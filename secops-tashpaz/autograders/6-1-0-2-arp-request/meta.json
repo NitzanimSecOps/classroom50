@@ -1,0 +1,14 @@
+{
+  "slug": "6-1-0-2-arp-request",
+  "classroom": "secops-tashpaz",
+  "exercise_id": "6.1.0.2",
+  "points_per_test": 1,
+  "timeout": 300,
+  "tests": [
+    "resolve_ip returns the gateway's real MAC (sent a request and parsed the reply).",
+    "resolve_ip returns the victim's real MAC (sent a request and parsed the reply)."
+  ],
+  "solution_files": [
+    "main.py"
+  ]
+}

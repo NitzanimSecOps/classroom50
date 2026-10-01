@@ -1,0 +1,15 @@
+{
+  "slug": "6-1-0-3-poison-a-target",
+  "classroom": "secops-tashpaz",
+  "exercise_id": "6.1.0.3",
+  "points_per_test": 1,
+  "timeout": 300,
+  "tests": [
+    "Emits forged ARP replies onto the segment.",
+    "Poisons the victim's ARP cache for the gateway (points it at the attacker).",
+    "Poisons the gateway's ARP cache for the victim (points it at the attacker)."
+  ],
+  "solution_files": [
+    "main.py"
+  ]
+}

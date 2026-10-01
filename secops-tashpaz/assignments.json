@@ -580,6 +580,86 @@
       "feedback_pr": true,
       "_exercise_id": "5.1.0.6",
       "_tests": 9
+    },
+    {
+      "slug": "6-1-0-1-parse-arp",
+      "name": "6.1.0.1 Parse ARP",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": [
+          "self-hosted",
+          "autograder"
+        ]
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-6-1-0-1-parse-arp",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "6.1.0.1",
+      "_tests": 9
+    },
+    {
+      "slug": "6-1-0-2-arp-request",
+      "name": "6.1.0.2 ARP Request",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": [
+          "self-hosted",
+          "autograder"
+        ]
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-6-1-0-2-arp-request",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "6.1.0.2",
+      "_tests": 2
+    },
+    {
+      "slug": "6-1-0-3-poison-a-target",
+      "name": "6.1.0.3 Poison a Target",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": [
+          "self-hosted",
+          "autograder"
+        ]
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-6-1-0-3-poison-a-target",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "6.1.0.3",
+      "_tests": 3
+    },
+    {
+      "slug": "6-1-0-4-man-in-the-middle",
+      "name": "6.1.0.4 Man in the Middle",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": [
+          "self-hosted",
+          "autograder"
+        ]
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-6-1-0-4-man-in-the-middle",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "6.1.0.4",
+      "_tests": 5
     }
   ]
 }

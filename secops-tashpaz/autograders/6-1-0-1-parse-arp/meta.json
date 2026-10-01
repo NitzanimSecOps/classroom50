@@ -1,0 +1,21 @@
+{
+  "slug": "6-1-0-1-parse-arp",
+  "classroom": "secops-tashpaz",
+  "exercise_id": "6.1.0.1",
+  "points_per_test": 1,
+  "timeout": 300,
+  "tests": [
+    "opcode of a request is 1.",
+    "opcode of a reply is 2.",
+    "sender_mac is parsed into a readable string like '02:00:00:00:00:01'.",
+    "sender_ip is parsed into a readable string like '10.0.0.1'.",
+    "target_mac is parsed into a readable string.",
+    "target_ip is parsed into a readable string.",
+    "hardware_type, protocol_type, hardware_size and protocol_size are parsed.",
+    "A padded frame still parses — read the first 28 bytes, not the whole buffer.",
+    "A full ARP reply captured off the wire parses to the expected fields."
+  ],
+  "solution_files": [
+    "arp.py"
+  ]
+}

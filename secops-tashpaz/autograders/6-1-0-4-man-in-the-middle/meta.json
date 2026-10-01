@@ -1,0 +1,17 @@
+{
+  "slug": "6-1-0-4-man-in-the-middle",
+  "classroom": "secops-tashpaz",
+  "exercise_id": "6.1.0.4",
+  "points_per_test": 1,
+  "timeout": 300,
+  "tests": [
+    "Emits forged ARP replies onto the segment.",
+    "Poisons the victim's ARP cache for the gateway.",
+    "Poisons the gateway's ARP cache for the victim.",
+    "Sits on the path: victim->gateway traffic passes through the attacker.",
+    "Keeps the victim connected while poisoned (a real MITM, not a denial of service)."
+  ],
+  "solution_files": [
+    "main.py"
+  ]
+}
