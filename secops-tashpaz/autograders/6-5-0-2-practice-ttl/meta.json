@@ -1,0 +1,20 @@
+{
+  "slug": "6-5-0-2-practice-ttl",
+  "classroom": "secops-tashpaz",
+  "exercise_id": "6.5.0.2",
+  "points_per_test": 1,
+  "timeout": 300,
+  "tests": [
+    "A packet with TTL to spare is forwarded with its TTL reduced by one.",
+    "Decrement is exactly one: a TTL of 2 leaves as 1.",
+    "A packet on its last hop (TTL 1) is dropped, not forwarded.",
+    "A packet addressed to the router is delivered even with TTL 1 — TTL is a transit rule.",
+    "Base behaviour still holds: a packet with no route is dropped, not forwarded."
+  ],
+  "solution_files": [
+    "arp.py",
+    "host.py",
+    "ipv4.py",
+    "routing.py"
+  ]
+}

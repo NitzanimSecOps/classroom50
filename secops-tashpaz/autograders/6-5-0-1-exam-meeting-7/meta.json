@@ -1,0 +1,22 @@
+{
+  "slug": "6-5-0-1-exam-meeting-7",
+  "classroom": "secops-tashpaz",
+  "exercise_id": "6.5.0.1",
+  "points_per_test": 1,
+  "timeout": 300,
+  "tests": [
+    "A normal broadcast ARP request is not an attack — forwarded, no alert.",
+    "A reply that answers a request we saw go past is legitimate — no alert.",
+    "An ARP reply that answers no request we saw is the classic poisoning signature.",
+    "An IP already known on one port, now claimed from another port = impersonation.",
+    "The gateway re-announcing from its own port is a normal refresh — no alert.",
+    "The Ethernet source and the ARP 'sender MAC' disagree — a forged sender address.",
+    "A request whose Ethernet source matches its ARP sender is fine — no false alarm.",
+    "Detection only inspects ARP — a non-ARP frame flows untouched, no alert."
+  ],
+  "solution_files": [
+    "arp.py",
+    "ethernet.py",
+    "switch.py"
+  ]
+}

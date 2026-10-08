@@ -660,6 +660,86 @@
       "feedback_pr": true,
       "_exercise_id": "6.1.0.4",
       "_tests": 5
+    },
+    {
+      "slug": "6-5-0-1-exam-meeting-7",
+      "name": "6.5.0.1 Exam (Meeting 7)",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": [
+          "self-hosted",
+          "autograder"
+        ]
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-6-5-0-1-exam-meeting-7",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "6.5.0.1",
+      "_tests": 8
+    },
+    {
+      "slug": "6-5-0-2-practice-ttl",
+      "name": "6.5.0.2 Practice TTL",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": [
+          "self-hosted",
+          "autograder"
+        ]
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-6-5-0-2-practice-ttl",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "6.5.0.2",
+      "_tests": 5
+    },
+    {
+      "slug": "6-5-0-3-practice-port-security",
+      "name": "6.5.0.3 Practice Port Security",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": [
+          "self-hosted",
+          "autograder"
+        ]
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-6-5-0-3-practice-port-security",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "6.5.0.3",
+      "_tests": 6
+    },
+    {
+      "slug": "6-5-0-4-practice-anti-spoofing",
+      "name": "6.5.0.4 Practice Anti-Spoofing",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": [
+          "self-hosted",
+          "autograder"
+        ]
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-6-5-0-4-practice-anti-spoofing",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "6.5.0.4",
+      "_tests": 5
     }
   ]
 }

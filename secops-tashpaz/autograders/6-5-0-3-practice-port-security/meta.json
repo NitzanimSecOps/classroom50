@@ -1,0 +1,19 @@
+{
+  "slug": "6-5-0-3-practice-port-security",
+  "classroom": "secops-tashpaz",
+  "exercise_id": "6.5.0.3",
+  "points_per_test": 1,
+  "timeout": 300,
+  "tests": [
+    "The first MAC a port sees is accepted and forwarded, no alert.",
+    "The locked MAC may keep using its port.",
+    "A different MAC on a port that already learned one is blocked and dropped.",
+    "The port stays locked to its first MAC — any other MAC is blocked too.",
+    "Each port locks to its own first MAC — MAC-B is fine on a different port.",
+    "A blocked intruder does not lock out the port's real owner."
+  ],
+  "solution_files": [
+    "ethernet.py",
+    "switch.py"
+  ]
+}
