@@ -15,8 +15,6 @@
     "Detection only inspects ARP — a non-ARP frame flows untouched, no alert."
   ],
   "solution_files": [
-    "arp.py",
-    "ethernet.py",
-    "switch.py"
+    "selftest.py"
   ]
 }

@@ -12,10 +12,6 @@
     "Base behaviour still holds: a packet with no route is dropped, not forwarded."
   ],
   "solution_files": [
-    "arp.py",
-    "host.py",
-    "ipv4.py",
-    "routing.py",
     "selftest.py"
   ]
 }

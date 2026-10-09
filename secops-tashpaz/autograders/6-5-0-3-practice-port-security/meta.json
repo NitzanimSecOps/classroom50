@@ -13,8 +13,6 @@
     "A blocked intruder does not lock out the port's real owner."
   ],
   "solution_files": [
-    "ethernet.py",
-    "selftest.py",
-    "switch.py"
+    "selftest.py"
   ]
 }
