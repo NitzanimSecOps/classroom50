@@ -14,6 +14,7 @@
   ],
   "solution_files": [
     "ethernet.py",
+    "selftest.py",
     "switch.py"
   ]
 }

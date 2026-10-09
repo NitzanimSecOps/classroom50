@@ -722,8 +722,8 @@
       "_tests": 6
     },
     {
-      "slug": "6-5-0-4-practice-anti-spoofing",
-      "name": "6.5.0.4 Practice Anti-Spoofing",
+      "slug": "6-5-0-4-practice-detect-poisoning",
+      "name": "6.5.0.4 Practice Detect Poisoning",
       "mode": "individual",
       "autograder": "default",
       "runtime": {
@@ -734,7 +734,7 @@
       },
       "template": {
         "owner": "NitzanimSecOps",
-        "repo": "secops-6-5-0-4-practice-anti-spoofing",
+        "repo": "secops-6-5-0-4-practice-detect-poisoning",
         "branch": "main"
       },
       "feedback_pr": true,

@@ -1,0 +1,20 @@
+{
+  "slug": "6-5-0-4-practice-detect-poisoning",
+  "classroom": "secops-tashpaz",
+  "exercise_id": "6.5.0.4",
+  "points_per_test": 1,
+  "timeout": 300,
+  "tests": [
+    "A normal ARP request is not an attack — forwarded, no alert.",
+    "A reply that answers a request the switch saw is legitimate — no alert.",
+    "A reply the switch never saw a request for is the poisoning signature — alert + drop.",
+    "Another unsolicited reply (different sender) is caught too.",
+    "Detection only inspects ARP — a non-ARP frame flows untouched, no alert."
+  ],
+  "solution_files": [
+    "arp.py",
+    "ethernet.py",
+    "selftest.py",
+    "switch.py"
+  ]
+}
