@@ -11,6 +11,7 @@
     "test_frame_is_not_transmitted_back_out_incoming_port"
   ],
   "solution_files": [
+    "selftest.py",
     "switch.py"
   ]
 }
