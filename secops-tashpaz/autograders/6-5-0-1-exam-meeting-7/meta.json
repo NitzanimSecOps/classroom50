@@ -12,7 +12,11 @@
     "The gateway re-announcing from its own port is a normal refresh — no alert.",
     "The Ethernet source and the ARP 'sender MAC' disagree — a forged sender address.",
     "A request whose Ethernet source matches its ARP sender is fine — no false alarm.",
-    "Detection only inspects ARP — a non-ARP frame flows untouched, no alert."
+    "Detection only inspects ARP — a non-ARP frame flows untouched, no alert.",
+    "PSEUDOCODE: the student submitted a pseudocode document (as in the instructions).",
+    "PSEUDOCODE: the pseudocode handles unsolicited ARP requests.",
+    "PSEUDOCODE: the pseudocode handles duplicate ports for an IP.",
+    "PSEUDOCODE: the pseudocode handles an Ethernet / ARP discrepancy."
   ],
   "solution_files": [
     "selftest.py"

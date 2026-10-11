@@ -145,3 +145,27 @@ def test_non_arp_frame_passes_through(sw, capsys):
     sw._process_frame(frame, sw.ports[1])
     assert "ARP-POISONING" not in capsys.readouterr().out
     assert _forwarded(sw) > 0
+
+
+# --- PSEUDOCODE rows -------------------------------------------------------
+# Always fail: placeholders for items a human reviews (the pseudocode
+# document). They sit LAST so existing Codo row positions don't shift.
+
+def test_pseudocode_document_submitted():
+    """PSEUDOCODE: the student submitted a pseudocode document (as in the instructions)."""
+    pytest.fail("PSEUDOCODE: manual review required")
+
+
+def test_pseudocode_unsolicited_arp_handled():
+    """PSEUDOCODE: the pseudocode handles unsolicited ARP requests."""
+    pytest.fail("PSEUDOCODE: manual review required")
+
+
+def test_pseudocode_duplicate_ports_for_ip_handled():
+    """PSEUDOCODE: the pseudocode handles duplicate ports for an IP."""
+    pytest.fail("PSEUDOCODE: manual review required")
+
+
+def test_pseudocode_ethernet_arp_discrepancy_handled():
+    """PSEUDOCODE: the pseudocode handles an Ethernet / ARP discrepancy."""
+    pytest.fail("PSEUDOCODE: manual review required")
