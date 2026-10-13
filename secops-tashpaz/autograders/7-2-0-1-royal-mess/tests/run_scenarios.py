@@ -3,9 +3,10 @@
 Royal Mess chaos harness — runs INSIDE a docker container (its own PID namespace),
 so the student's system-wide process kills stay contained.
 
-It writes a TRUSTED copy of boogie.sh (a tampered student copy can't weaken the mess),
-runs it to create the four messes, then runs the student's cleanup.sh, measures the
-final state, and prints one JSON line. As PID 1 it reaps zombies reparented to it.
+It writes TRUSTED copies of the mess scripts (a tampered student copy can't weaken
+the mess), runs boogie.sh to create King Julian's four messes, then runs the
+student's cleanup.sh, measures the final state, and prints one JSON line. As PID 1
+it reaps zombies reparented to it.
 """
 import json
 import os
@@ -15,27 +16,54 @@ import sys
 import time
 
 CLEANUP = sys.argv[1]
-PORT = 8077
+PORT = 8000
 
-# Identical to the boogie.sh shipped to students (template/), kept trusted here.
-BOOGIE = r'''#!/usr/bin/env bash
-PORT="${1:-8077}"
-nohup python3 -c "import socket,time;s=socket.socket();s.setsockopt(1,2,1);s.bind(('127.0.0.1',$PORT));s.listen(16);time.sleep(99999)" >/dev/null 2>&1 &
-nohup bash -c 'while :; do :; done' >/dev/null 2>&1 &
-_d="$(mktemp -d)"; cp "$(command -v sleep)" "$_d/curl"; chmod +x "$_d/curl"
-nohup bash -c "while true; do '$_d/curl' 60 & sleep 1; done" >/dev/null 2>&1 &
-nohup python3 -c "import os,time
-for _ in range(5):
-    if os.fork()==0: os._exit(0)
-while True: time.sleep(1)" >/dev/null 2>&1 &
-'''
+SCRIPTS = {
+    "boogie.sh": r'''#!/bin/bash
+echo "Operation: Royal Mess initiated..."
+nohup python3 royal_server_v1.py > /dev/null 2>&1 &
+cp $(which python3) ./julien_dance_party
+nohup ./julien_dance_party juliens_dance.py > /dev/null 2>&1 &
+nohup ./viral_video.sh > /dev/null 2>&1 &
+cp $(which python3) ./royal_cleaner
+nohup ./royal_cleaner clean_the_mess.py > /dev/null 2>&1 &
+''',
+    "royal_server_v1.py": r'''import http.server
+import socketserver
+PORT = 8000
+socketserver.TCPServer.allow_reuse_address = True
+with socketserver.TCPServer(("", PORT), http.server.SimpleHTTPRequestHandler) as httpd:
+    httpd.serve_forever()
+''',
+    "juliens_dance.py": r'''import hashlib, signal, time
+def h(sig, frame):
+    pass
+signal.signal(signal.SIGINT, h)
+signal.signal(signal.SIGTERM, h)
+while True:
+    hashlib.sha256(b"I like to move it move it").hexdigest()
+''',
+    "viral_video.sh": r'''#!/bin/bash
+TARGET="http://localhost:8000"
+while true; do
+    curl -s -o /dev/null "$TARGET" > /dev/null 2>&1
+done
+''',
+    "clean_the_mess.py": r'''import os, sys, time
+for i in range(10):
+    if os.fork() == 0:
+        sys.exit(0)
+while True:
+    time.sleep(10)
+''',
+}
 
 
 def port_free(port):
     s = socket.socket()
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     try:
-        s.bind(("127.0.0.1", port))
+        s.bind(("", port))
         return True
     except OSError:
         return False
@@ -68,30 +96,27 @@ def zombie_count():
     return n
 
 
-def top_cpu():
-    out = subprocess.run(["ps", "-eo", "%cpu", "--sort=-%cpu", "--no-headers"],
-                         capture_output=True, text=True).stdout.splitlines()
-    for line in out:
-        try:
-            return float(line.strip())
-        except ValueError:
-            continue
-    return 0.0
+def _pgrep_f(pat):
+    return subprocess.run(["pgrep", "-f", pat], capture_output=True).returncode == 0
 
 
-def curls_alive():
-    return subprocess.run(["pgrep", "-x", "curl"], capture_output=True).returncode == 0
+def _pgrep_x(name):
+    return subprocess.run(["pgrep", "-x", name], capture_output=True).returncode == 0
 
 
 def main():
     wd = "/tmp/rm"
     os.makedirs(wd, exist_ok=True)
-    boogie = os.path.join(wd, "boogie.sh")
-    with open(boogie, "w") as f:
-        f.write(BOOGIE)
+    for name, content in SCRIPTS.items():
+        p = os.path.join(wd, name)
+        with open(p, "w") as f:
+            f.write(content)
+        if name.endswith(".sh"):
+            os.chmod(p, 0o755)
 
-    subprocess.run(["bash", boogie, str(PORT)], cwd=wd, capture_output=True, timeout=30)
-    time.sleep(4)  # let curls spawn + zombies form
+    subprocess.run(["bash", os.path.join(wd, "boogie.sh")], cwd=wd,
+                   capture_output=True, timeout=30)
+    time.sleep(5)  # let the server bind, curls spam, zombies form, CPU spin
 
     subprocess.run(["bash", CLEANUP, str(PORT)], cwd=wd, capture_output=True, timeout=60)
     time.sleep(3)  # let a surviving flood respawn; let kills settle
@@ -99,8 +124,8 @@ def main():
 
     print(json.dumps({
         "port_free": port_free(PORT),
-        "cpu_hog_gone": top_cpu() < 50.0,
-        "curls_gone": not curls_alive(),
+        "cpu_hog_gone": not _pgrep_f("julien_dance_party"),
+        "curls_stopped": not _pgrep_f("viral_video.sh") and not _pgrep_x("curl"),
         "zombies": zombie_count(),
     }))
 

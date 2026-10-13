@@ -1,10 +1,10 @@
 """
 Grader for 7.2.0.1 "Royal Mess" — process-triage incident response.
 
-The mess (boogie.sh) + the student's cleanup.sh run INSIDE a docker container (its own
-PID namespace), so system-wide process kills can't escape the sandbox. run_scenarios.py
-(mounted into the container) creates King Julian's four messes, runs cleanup.sh, and
-prints the measured final state as JSON.
+King Julian's mess (boogie.sh + its helper scripts) and the student's cleanup.sh
+run INSIDE a docker container (its own PID namespace), so system-wide process kills
+can't escape the sandbox. run_scenarios.py creates the four messes, runs cleanup.sh,
+and prints the measured final state as JSON.
 
 One sandbox run per module; docstring order = Codo row order.
 """
@@ -41,12 +41,12 @@ def test_1(outcome):
 
 def test_2(outcome):
     """חיסול זולל המעבד: תהליך ה-CPU הגבוה נהרג"""
-    assert outcome["cpu_hog_gone"], "a process is still grinding the CPU"
+    assert outcome["cpu_hog_gone"], "the CPU hog is still running (it ignores SIGTERM — use SIGKILL)"
 
 
 def test_3(outcome):
-    """עצירת המבול: אין יותר תהליכי curl"""
-    assert outcome["curls_gone"], "curl processes are still running (did the flood come back?)"
+    """עצירת המבול: הסקריפט שמייצר את ה-curl וה-curl עצמם נעצרו"""
+    assert outcome["curls_stopped"], "curl flood still active (did you kill the parent script?)"
 
 
 def test_4(outcome):
