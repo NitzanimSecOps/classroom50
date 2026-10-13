@@ -740,6 +740,106 @@
       "feedback_pr": true,
       "_exercise_id": "6.5.0.4",
       "_tests": 5
+    },
+    {
+      "slug": "7-1-0-1-dr-blowhole",
+      "name": "7.1.0.1 Dr. Blowhole",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": [
+          "self-hosted",
+          "autograder"
+        ]
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-7-1-0-1-dr-blowhole",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "7.1.0.1",
+      "_tests": 2
+    },
+    {
+      "slug": "7-1-0-2-dr-blowhole-returns",
+      "name": "7.1.0.2 Dr. Blowhole Returns",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": [
+          "self-hosted",
+          "autograder"
+        ]
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-7-1-0-2-dr-blowhole-returns",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "7.1.0.2",
+      "_tests": 4
+    },
+    {
+      "slug": "7-1-0-3-blowhole-s-revenge",
+      "name": "7.1.0.3 Blowhole's Revenge",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": [
+          "self-hosted",
+          "autograder"
+        ]
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-7-1-0-3-blowhole-s-revenge",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "7.1.0.3",
+      "_tests": 2
+    },
+    {
+      "slug": "7-2-0-1-royal-mess",
+      "name": "7.2.0.1 Royal Mess",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": [
+          "self-hosted",
+          "autograder"
+        ]
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-7-2-0-1-royal-mess",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "7.2.0.1",
+      "_tests": 5
+    },
+    {
+      "slug": "7-2-0-2-self-destruct",
+      "name": "7.2.0.2 Self Destruct",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": [
+          "self-hosted",
+          "autograder"
+        ]
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-7-2-0-2-self-destruct",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "7.2.0.2",
+      "_tests": 4
     }
   ]
 }
