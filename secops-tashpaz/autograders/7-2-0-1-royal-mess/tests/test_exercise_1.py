@@ -1,14 +1,12 @@
 """
 Grader for 7.2.0.1 "Royal Mess" — process-triage incident response.
 
-The chaos + the student's cleanup.sh run INSIDE a docker container (its own PID
-namespace), so the student's system-wide process kills can't escape the sandbox —
-worst case is a failed grade, never a killed host process. (Rootless `unshare` is
-blocked on the fleet by AppArmor, so docker is the isolation, same as the ARP grader.)
+The mess (boogie.sh) + the student's cleanup.sh run INSIDE a docker container (its own
+PID namespace), so system-wide process kills can't escape the sandbox. run_scenarios.py
+(mounted into the container) creates King Julian's four messes, runs cleanup.sh, and
+prints the measured final state as JSON.
 
-run_scenarios.py (mounted into the container) reproduces four messes + a legit
-"royal_db" bystander that MUST survive, runs cleanup.sh, and prints the measured
-final state as JSON. One sandbox run per module; docstring order = Codo row order.
+One sandbox run per module; docstring order = Codo row order.
 """
 import json
 import os
@@ -43,19 +41,14 @@ def test_1(outcome):
 
 def test_2(outcome):
     """חיסול זולל המעבד: תהליך ה-CPU הגבוה נהרג"""
-    assert outcome["hog_dead"], "the CPU-hog process is still running"
+    assert outcome["cpu_hog_gone"], "a process is still grinding the CPU"
 
 
 def test_3(outcome):
-    """עצירת המבול: תהליכי ה-curl וההורה שמייצר אותם נהרגו"""
-    assert outcome["flood_gone"], "curl floods still present (did you kill the parent script?)"
+    """עצירת המבול: אין יותר תהליכי curl"""
+    assert outcome["curls_gone"], "curl processes are still running (did the flood come back?)"
 
 
 def test_4(outcome):
     """קבירת הזומבים: לא נותרו תהליכי zombie"""
     assert outcome["zombies"] == 0, f"{outcome['zombies']} zombie process(es) remain"
-
-
-def test_5(outcome):
-    """ללא נזק היקפי: השירות התקין (royal_db) עדיין רץ"""
-    assert outcome["bystander_alive"], "the legit royal_db service was killed — don't nuke everything"

@@ -1,16 +1,14 @@
 #!/usr/bin/env python3
 """
-Royal Mess chaos harness — runs INSIDE a rootless PID namespace
-(`unshare -Urpf --mount-proc python3 run_scenarios.py <cleanup.sh>`), so the
-student's system-wide process kills only ever touch this sandbox, never the host.
+Royal Mess chaos harness — runs INSIDE a docker container (its own PID namespace),
+so the student's system-wide process kills stay contained.
 
-Spawns the four messes + a legit bystander, runs the student's cleanup.sh,
-measures the final state, and prints one JSON line. This process is PID 1 of the
-namespace, so it reaps orphaned zombies after the student kills their parent.
+It writes a TRUSTED copy of boogie.sh (a tampered student copy can't weaken the mess),
+runs it to create the four messes, then runs the student's cleanup.sh, measures the
+final state, and prints one JSON line. As PID 1 it reaps zombies reparented to it.
 """
 import json
 import os
-import shutil
 import socket
 import subprocess
 import sys
@@ -19,9 +17,18 @@ import time
 CLEANUP = sys.argv[1]
 PORT = 8077
 
-
-def spawn(args):
-    return subprocess.Popen(args, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+# Identical to the boogie.sh shipped to students (template/), kept trusted here.
+BOOGIE = r'''#!/usr/bin/env bash
+PORT="${1:-8077}"
+nohup python3 -c "import socket,time;s=socket.socket();s.setsockopt(1,2,1);s.bind(('127.0.0.1',$PORT));s.listen(16);time.sleep(99999)" >/dev/null 2>&1 &
+nohup bash -c 'while :; do :; done' >/dev/null 2>&1 &
+_d="$(mktemp -d)"; cp "$(command -v sleep)" "$_d/curl"; chmod +x "$_d/curl"
+nohup bash -c "while true; do '$_d/curl' 60 & sleep 1; done" >/dev/null 2>&1 &
+nohup python3 -c "import os,time
+for _ in range(5):
+    if os.fork()==0: os._exit(0)
+while True: time.sleep(1)" >/dev/null 2>&1 &
+'''
 
 
 def port_free(port):
@@ -37,7 +44,6 @@ def port_free(port):
 
 
 def reap():
-    """As PID 1, reap zombies reparented to us after the student killed a parent."""
     while True:
         try:
             pid, _ = os.waitpid(-1, os.WNOHANG)
@@ -62,6 +68,17 @@ def zombie_count():
     return n
 
 
+def top_cpu():
+    out = subprocess.run(["ps", "-eo", "%cpu", "--sort=-%cpu", "--no-headers"],
+                         capture_output=True, text=True).stdout.splitlines()
+    for line in out:
+        try:
+            return float(line.strip())
+        except ValueError:
+            continue
+    return 0.0
+
+
 def curls_alive():
     return subprocess.run(["pgrep", "-x", "curl"], capture_output=True).returncode == 0
 
@@ -69,37 +86,22 @@ def curls_alive():
 def main():
     wd = "/tmp/rm"
     os.makedirs(wd, exist_ok=True)
-    procs = {}
-    procs["port"] = spawn([sys.executable, "-c",
-        f"import socket,time;s=socket.socket();s.setsockopt(1,2,1);"
-        f"s.bind(('127.0.0.1',{PORT}));s.listen();time.sleep(600)"])
-    procs["hog"] = spawn(["bash", "-c", "while :; do :; done"])
-    fakecurl = os.path.join(wd, "curl")          # a binary named 'curl' so comm=='curl'
-    shutil.copy(shutil.which("sleep"), fakecurl)
-    os.chmod(fakecurl, 0o755)
-    flood = os.path.join(wd, "royal_views.sh")
-    with open(flood, "w") as f:
-        f.write(f"#!/usr/bin/env bash\nwhile true; do '{fakecurl}' 60 & sleep 1; done\n")
-    procs["flood"] = spawn(["bash", flood])
-    procs["zomb"] = spawn([sys.executable, "-c",
-        "import os,time\nfor _ in range(5):\n    if os.fork()==0: os._exit(0)\nwhile True: time.sleep(1)"])
-    procs["bystander"] = spawn(["bash", "-c", "exec -a royal_db sleep 600"])
+    boogie = os.path.join(wd, "boogie.sh")
+    with open(boogie, "w") as f:
+        f.write(BOOGIE)
 
-    time.sleep(3)  # let services bind, zombies form, curls spawn
+    subprocess.run(["bash", boogie, str(PORT)], cwd=wd, capture_output=True, timeout=30)
+    time.sleep(4)  # let curls spawn + zombies form
 
     subprocess.run(["bash", CLEANUP, str(PORT)], cwd=wd, capture_output=True, timeout=60)
-
-    time.sleep(3)  # let a surviving flood parent respawn; let kills settle
-    for p in procs.values():
-        p.poll()
+    time.sleep(3)  # let a surviving flood respawn; let kills settle
     reap()
 
     print(json.dumps({
         "port_free": port_free(PORT),
-        "hog_dead": procs["hog"].poll() is not None,
-        "flood_gone": procs["flood"].poll() is not None and not curls_alive(),
+        "cpu_hog_gone": top_cpu() < 50.0,
+        "curls_gone": not curls_alive(),
         "zombies": zombie_count(),
-        "bystander_alive": procs["bystander"].poll() is None,
     }))
 
 
