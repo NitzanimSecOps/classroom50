@@ -7,10 +7,7 @@
       "mode": "individual",
       "autograder": "default",
       "runtime": {
-        "runs-on": [
-          "self-hosted",
-          "autograder"
-        ]
+        "runs-on": "ubuntu-latest"
       },
       "tests": [
         {
