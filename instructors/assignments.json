@@ -14,6 +14,62 @@
       "feedback_pr": true,
       "_exercise_id": "0.0.0.3",
       "_tests": 2
+    },
+    {
+      "slug": "6-1-0-2-arp-request",
+      "name": "6.1.0.2 ARP Request",
+      "mode": "individual",
+      "autograder": "default",
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-6-1-0-2-arp-request",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "6.1.0.2",
+      "_tests": 2
+    },
+    {
+      "slug": "6-1-0-3-poison-a-target",
+      "name": "6.1.0.3 Poison a Target",
+      "mode": "individual",
+      "autograder": "default",
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-6-1-0-3-poison-a-target",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "6.1.0.3",
+      "_tests": 3
+    },
+    {
+      "slug": "6-1-0-4-man-in-the-middle",
+      "name": "6.1.0.4 Man in the Middle",
+      "mode": "individual",
+      "autograder": "default",
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-6-1-0-4-man-in-the-middle",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "6.1.0.4",
+      "_tests": 5
+    },
+    {
+      "slug": "7-2-0-1-royal-mess",
+      "name": "7.2.0.1 Royal Mess",
+      "mode": "individual",
+      "autograder": "default",
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-7-2-0-1-royal-mess",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "7.2.0.1",
+      "_tests": 4
     }
   ]
 }

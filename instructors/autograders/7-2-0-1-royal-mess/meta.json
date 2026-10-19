@@ -1,0 +1,23 @@
+{
+  "slug": "7-2-0-1-royal-mess",
+  "classroom": "instructors",
+  "exercise_id": "7.2.0.1",
+  "points_per_test": 1,
+  "timeout": 300,
+  "tests": [
+    "שחרור הפורט: הפורט של האתר המלכותי פנוי",
+    "חיסול זולל המעבד: תהליך ה-CPU הגבוה נהרג",
+    "עצירת המבול: הסקריפט שמייצר את ה-curl וה-curl עצמם נעצרו",
+    "קבירת הזומבים: לא נותרו תהליכי zombie"
+  ],
+  "solution_files": [
+    "boogie.sh",
+    "clean_the_mess.py",
+    "cleanup.sh",
+    "juliens_dance.py",
+    "royal_server_v1.py",
+    "selftest.py",
+    "server.py",
+    "viral_video.sh"
+  ]
+}
