@@ -739,9 +739,13 @@ jobs:
         run: |
           set -eu
           GHCR_PREFIX=ghcr.io/nitzanimsecops
+          # Each image independently: one failed pull must not skip the other.
           for name in arp-grader royal-grader; do
-            docker pull "${GHCR_PREFIX}/${name}:latest"
-            docker tag "${GHCR_PREFIX}/${name}:latest" "${name}:latest"
+            if docker pull "${GHCR_PREFIX}/${name}:latest"; then
+              docker tag "${GHCR_PREFIX}/${name}:latest" "${name}:latest"
+            else
+              echo "::warning::could not pull ${GHCR_PREFIX}/${name}:latest"
+            fi
           done
 
       # === Run runner.py (which execs the autograder) ===
