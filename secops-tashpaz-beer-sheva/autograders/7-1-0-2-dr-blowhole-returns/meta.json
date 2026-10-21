@@ -1,0 +1,17 @@
+{
+  "slug": "7-1-0-2-dr-blowhole-returns",
+  "classroom": "secops-tashpaz-beer-sheva",
+  "exercise_id": "7.1.0.2",
+  "points_per_test": 1,
+  "timeout": 300,
+  "tests": [
+    "אימות אורך: הדפסת Key Length תקינה",
+    "מפתח קריא: 100 תווים דפיסים",
+    "אקראיות: התוכן השתנה ובעל אנטרופיה",
+    "הודעת הצלחה: הדפסת Successfully ruined"
+  ],
+  "solution_files": [
+    "selftest.py",
+    "solve.sh"
+  ]
+}

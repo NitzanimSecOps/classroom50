@@ -1,0 +1,15 @@
+{
+  "slug": "7-1-0-1-dr-blowhole",
+  "classroom": "secops-tashpaz-yizrael",
+  "exercise_id": "7.1.0.1",
+  "points_per_test": 1,
+  "timeout": 300,
+  "tests": [
+    "תוכן אופס: כל בייט בקובץ הוא 0x00",
+    "הגודל נשמר: גודל הקובץ זהה למקור"
+  ],
+  "solution_files": [
+    "selftest.py",
+    "solve.sh"
+  ]
+}

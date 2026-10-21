@@ -1,0 +1,17 @@
+{
+  "slug": "7-2-0-2-self-destruct",
+  "classroom": "secops-tashpaz-beer-sheva",
+  "exercise_id": "7.2.0.2",
+  "points_per_test": 1,
+  "timeout": 300,
+  "tests": [
+    "רישום הרצה: השירות יוצר קובץ נעילה בעלייה",
+    "שירות מתמשך: התהליך נשאר חי עד לקבלת סיגנל",
+    "כיבוי מסודר: SIGTERM מפעיל ניקוי וסיום תקין",
+    "אין קיצורי דרך: SIGKILL לא מריץ ניקוי"
+  ],
+  "solution_files": [
+    "selftest.py",
+    "service.py"
+  ]
+}

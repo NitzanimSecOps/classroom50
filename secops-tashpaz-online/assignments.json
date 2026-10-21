@@ -493,6 +493,278 @@
       "feedback_pr": true,
       "_exercise_id": "5.1.0.6",
       "_tests": 9
+    },
+    {
+      "slug": "6-1-0-1-parse-arp",
+      "name": "6.1.0.1 Parse ARP",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": "ubuntu-latest"
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-6-1-0-1-parse-arp",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "6.1.0.1",
+      "_tests": 9
+    },
+    {
+      "slug": "6-1-0-2-arp-request",
+      "name": "6.1.0.2 ARP Request",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": "ubuntu-latest"
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-6-1-0-2-arp-request",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "6.1.0.2",
+      "_tests": 2
+    },
+    {
+      "slug": "6-1-0-3-poison-a-target",
+      "name": "6.1.0.3 Poison a Target",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": "ubuntu-latest"
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-6-1-0-3-poison-a-target",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "6.1.0.3",
+      "_tests": 3
+    },
+    {
+      "slug": "6-1-0-4-man-in-the-middle",
+      "name": "6.1.0.4 Man in the Middle",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": "ubuntu-latest"
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-6-1-0-4-man-in-the-middle",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "6.1.0.4",
+      "_tests": 5
+    },
+    {
+      "slug": "6-5-0-1-exam-meeting-7",
+      "name": "6.5.0.1 Exam (Meeting 7)",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": "ubuntu-latest"
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-6-5-0-1-exam-meeting-7",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "6.5.0.1",
+      "_tests": 12
+    },
+    {
+      "slug": "6-5-0-2-practice-ttl",
+      "name": "6.5.0.2 Practice TTL",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": "ubuntu-latest"
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-6-5-0-2-practice-ttl",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "6.5.0.2",
+      "_tests": 5
+    },
+    {
+      "slug": "6-5-0-3-practice-port-security",
+      "name": "6.5.0.3 Practice Port Security",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": "ubuntu-latest"
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-6-5-0-3-practice-port-security",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "6.5.0.3",
+      "_tests": 6
+    },
+    {
+      "slug": "6-5-0-4-practice-detect-poisoning",
+      "name": "6.5.0.4 Practice Detect Poisoning",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": "ubuntu-latest"
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-6-5-0-4-practice-detect-poisoning",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "6.5.0.4",
+      "_tests": 5
+    },
+    {
+      "slug": "7-1-0-1-dr-blowhole",
+      "name": "7.1.0.1 Dr. Blowhole",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": "ubuntu-latest"
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-7-1-0-1-dr-blowhole",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "7.1.0.1",
+      "_tests": 2
+    },
+    {
+      "slug": "7-1-0-2-dr-blowhole-returns",
+      "name": "7.1.0.2 Dr. Blowhole Returns",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": "ubuntu-latest"
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-7-1-0-2-dr-blowhole-returns",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "7.1.0.2",
+      "_tests": 4
+    },
+    {
+      "slug": "7-1-0-3-blowhole-s-revenge",
+      "name": "7.1.0.3 Blowhole's Revenge",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": "ubuntu-latest"
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-7-1-0-3-blowhole-s-revenge",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "7.1.0.3",
+      "_tests": 2
+    },
+    {
+      "slug": "7-2-0-1-royal-mess",
+      "name": "7.2.0.1 Royal Mess",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": "ubuntu-latest"
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-7-2-0-1-royal-mess",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "7.2.0.1",
+      "_tests": 4
+    },
+    {
+      "slug": "7-2-0-2-self-destruct",
+      "name": "7.2.0.2 Self Destruct",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": "ubuntu-latest"
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-7-2-0-2-self-destruct",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "7.2.0.2",
+      "_tests": 4
+    },
+    {
+      "slug": "8-1-1-1-tcp-sockets",
+      "name": "8.1.1.1 TCP Sockets",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": "ubuntu-latest"
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-8-1-1-1-tcp-sockets",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "8.1.1.1",
+      "_tests": 8
+    },
+    {
+      "slug": "8-1-2-2-pounce",
+      "name": "8.1.2.2 Pounce",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": "ubuntu-latest"
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-8-1-2-2-pounce",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "8.1.2.2",
+      "_tests": 10
+    },
+    {
+      "slug": "8-1-2-3-knock-knock",
+      "name": "8.1.2.3 Knock Knock",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": "ubuntu-latest"
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-8-1-2-3-knock-knock",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "8.1.2.3",
+      "_tests": 12
     }
   ]
 }

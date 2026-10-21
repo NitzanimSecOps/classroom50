@@ -1,0 +1,15 @@
+{
+  "slug": "7-1-0-3-blowhole-s-revenge",
+  "classroom": "secops-tashpaz-yizrael",
+  "exercise_id": "7.1.0.3",
+  "points_per_test": 1,
+  "timeout": 300,
+  "tests": [
+    "תנועה נרשמת: תנועת עכבר כותבת שורה ללוג",
+    "קצב מוגבל: ריבוי תנועות מהירות = שורה אחת לכל היותר"
+  ],
+  "solution_files": [
+    "selftest.py",
+    "watchdog.py"
+  ]
+}
