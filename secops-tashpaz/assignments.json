@@ -716,6 +716,23 @@
       "_tests": 4
     },
     {
+      "slug": "8-1-1-1-tcp-sockets",
+      "name": "8.1.1.1 TCP Sockets",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": "ubuntu-latest"
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-8-1-1-1-tcp-sockets",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "8.1.1.1",
+      "_tests": 9
+    },
+    {
       "slug": "8-1-2-2-pounce",
       "name": "8.1.2.2 Pounce",
       "mode": "individual",

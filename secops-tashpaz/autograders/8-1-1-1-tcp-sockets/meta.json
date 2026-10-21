@@ -1,0 +1,23 @@
+{
+  "slug": "8-1-1-1-tcp-sockets",
+  "classroom": "secops-tashpaz",
+  "exercise_id": "8.1.1.1",
+  "points_per_test": 1,
+  "timeout": 300,
+  "tests": [
+    "The server accepts a TCP connection on port 2405",
+    "The server answers a message with Kululu",
+    "The server answers Kululu whatever the message says",
+    "The server is still up and answers a second client",
+    "contact_server returns the server's answer",
+    "contact_server returns text (str), not bytes",
+    "contact_server returns whatever the server answered",
+    "contact_server sends a message to the server",
+    "contact_server connects to the port it was given"
+  ],
+  "solution_files": [
+    "client.py",
+    "selftest.py",
+    "server.py"
+  ]
+}
