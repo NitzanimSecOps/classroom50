@@ -731,6 +731,23 @@
       "feedback_pr": true,
       "_exercise_id": "8.1.2.2",
       "_tests": 10
+    },
+    {
+      "slug": "8-1-2-3-knock-knock",
+      "name": "8.1.2.3 Knock Knock",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": "ubuntu-latest"
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-8-1-2-3-knock-knock",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "8.1.2.3",
+      "_tests": 12
     }
   ]
 }
