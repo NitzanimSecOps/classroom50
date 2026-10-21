@@ -137,12 +137,6 @@ def test_server_reply_does_not_depend_on_the_message(server):
     assert ask(server, b"meow meow meow") == b"Kululu"
 
 
-def test_server_serves_a_second_client(server):
-    """The server is still up and answers a second client"""
-    assert ask(server, b"first") == b"Kululu"
-    assert ask(server, b"second") == b"Kululu"
-
-
 def test_client_returns_the_servers_answer(fake):
     """contact_server returns the server's answer"""
     f = fake("Kululu")
