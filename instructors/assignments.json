@@ -6,6 +6,12 @@
       "name": "0.0.0.3 Hello, World",
       "mode": "individual",
       "autograder": "default",
+      "runtime": {
+        "runs-on": [
+          "self-hosted",
+          "autograder"
+        ]
+      },
       "template": {
         "owner": "NitzanimSecOps",
         "repo": "secops-0-0-0-3-hello-world",
