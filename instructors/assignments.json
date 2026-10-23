@@ -6,12 +6,6 @@
       "name": "0.0.0.3 Hello, World",
       "mode": "individual",
       "autograder": "default",
-      "runtime": {
-        "runs-on": [
-          "self-hosted",
-          "autograder"
-        ]
-      },
       "template": {
         "owner": "NitzanimSecOps",
         "repo": "secops-0-0-0-3-hello-world",
@@ -54,12 +48,6 @@
       "name": "6.1.0.4 Man in the Middle",
       "mode": "individual",
       "autograder": "default",
-      "runtime": {
-        "runs-on": [
-          "self-hosted",
-          "autograder"
-        ]
-      },
       "template": {
         "owner": "NitzanimSecOps",
         "repo": "secops-6-1-0-4-man-in-the-middle",
@@ -74,12 +62,6 @@
       "name": "7.2.0.1 Royal Mess",
       "mode": "individual",
       "autograder": "default",
-      "runtime": {
-        "runs-on": [
-          "self-hosted",
-          "autograder"
-        ]
-      },
       "template": {
         "owner": "NitzanimSecOps",
         "repo": "secops-7-2-0-1-royal-mess",
