@@ -145,7 +145,8 @@ def _blank_out(src: bytes, stmts: list[ast.stmt]) -> bytes:
     """Replace each statement with `pass` on its first line and blank the rest of its
     lines, so every other line keeps its original number. Columns are UTF-8 byte offsets."""
     lines = src.split(b"\n")
-    for st in stmts:
+    # right to left, so an earlier splice can't shift the columns of a later statement
+    for st in sorted(stmts, key=lambda s: (s.lineno, s.col_offset), reverse=True):
         a, b = st.lineno - 1, st.end_lineno - 1
         head = lines[a][:st.col_offset]
         if a == b:
@@ -170,7 +171,7 @@ def skip_toplevel_calls(gdir: pathlib.Path, wide: bool) -> dict[str, list[int]]:
         if f.name in hidden:
             continue
         try:
-            src = (gdir / f.name).read_bytes()
+            src = (gdir / f.name).read_bytes().removeprefix(b"\xef\xbb\xbf")  # ast columns exclude the BOM
             stmts = _top_level_skips(ast.parse(src), wide)
             if not stmts:
                 continue
