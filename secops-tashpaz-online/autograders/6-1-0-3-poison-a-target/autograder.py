@@ -27,9 +27,23 @@ runner publishes as the Release body and mirrors to the run's Summary page. The
 traceback stays OUT of result.json (v1 rows are test-name/passed/score/max-score).
 `short` shows only the failing line of each frame, not whole test functions, so the
 hidden tests leak as little source as a useful trace allows.
+
+Top-level student code: a student file that CALLS something at module level (a leftover
+`print(f(x))`, `main()`, `name = input()`) runs the moment the hidden test imports it. On
+the runner that can raise (no tty for os.getlogin, no stdin for input()), and the whole
+exercise then scores 0 on one "pytest collection error" row. So when, and only when,
+collection yields no tests, we grade AGAIN in the temp grading dir with the student's
+top-level calls replaced by `pass` in place (line numbers stay true): first just bare
+expression calls, then, if collection still fails, also any other top-level statement that
+calls something. Imports, def and class always stay, and call-free constants stay. The
+hidden tests are never altered, and the student checkout is never touched. A retried
+submission scores normally, and a note (Release body + Actions log) names each skipped
+line. Anything the retry can't fix (SyntaxError, missing name, bad test module...) falls
+back to the ordinary collection-error row; a submission that collects is graded as before.
 """
 from __future__ import annotations
 
+import ast
 import json
 import os
 import pathlib
@@ -78,11 +92,13 @@ def grading_dir() -> pathlib.Path:
     return d
 
 
-def run_pytest() -> tuple[dict, str]:
+def run_pytest(mutate=None) -> tuple[dict, str]:
     """Run pytest → (parsed json report, combined stdout+stderr). The output is
     returned (not discarded) so a collection/import error can be SURFACED rather than
     reduced to a cryptic 0/1."""
     gdir = grading_dir()
+    if mutate:
+        mutate(gdir)
     out = pathlib.Path(tempfile.mkdtemp(prefix="c50-pytest-")) / "report.json"
     env = dict(os.environ)
     env["PYTHONPATH"] = os.pathsep.join(
@@ -103,6 +119,111 @@ def run_pytest() -> tuple[dict, str]:
         return json.loads(out.read_text(encoding="utf-8", errors="replace")), output
     except json.JSONDecodeError:
         return {}, output
+
+
+def _top_level_skips(tree: ast.Module, wide: bool) -> list[ast.stmt]:
+    """Module-level statements to neutralise. Narrow: a bare expression call (`print(f())`,
+    `main()`). Wide: also any other statement that calls something (`x = input()`, a loop
+    printing results), but never imports, def/class, docstrings, or an `if __name__`
+    guard, which doesn't run on import anyway."""
+    keep = (ast.Import, ast.ImportFrom, ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)
+    out = []
+    for st in tree.body:
+        if isinstance(st, keep):
+            continue
+        if isinstance(st, ast.Expr):
+            if isinstance(st.value, ast.Call):
+                out.append(st)
+        elif wide and not (isinstance(st, ast.If) and any(
+                isinstance(n, ast.Name) and n.id == "__name__" for n in ast.walk(st.test))
+        ) and any(isinstance(n, ast.Call) for n in ast.walk(st)):
+            out.append(st)
+    return out
+
+
+def _blank_out(src: bytes, stmts: list[ast.stmt]) -> bytes:
+    """Replace each statement with `pass` on its first line and blank the rest of its
+    lines, so every other line keeps its original number. Columns are UTF-8 byte offsets."""
+    lines = src.split(b"\n")
+    # right to left, so an earlier splice can't shift the columns of a later statement
+    for st in sorted(stmts, key=lambda s: (s.lineno, s.col_offset), reverse=True):
+        a, b = st.lineno - 1, st.end_lineno - 1
+        head = lines[a][:st.col_offset]
+        if a == b:
+            lines[a] = head + b"pass" + lines[a][st.end_col_offset:]
+            continue
+        tail = lines[b][st.end_col_offset:]
+        if tail.strip() and not tail.strip().startswith(b"#"):
+            raise ValueError("code after a multi-line statement")
+        lines[a] = head + b"pass" + (b"\r" if lines[a].endswith(b"\r") else b"")
+        for i in range(a + 1, b + 1):
+            lines[i] = b"\r" if lines[i].endswith(b"\r") else b""
+    return b"\n".join(lines)
+
+
+def skip_toplevel_calls(gdir: pathlib.Path, wide: bool) -> dict[str, list[int]]:
+    """Rewrite the STUDENT files in the temp grading dir (never the hidden tests, never
+    the checkout). -> {file name: original line numbers skipped}. A file that can't be
+    parsed or rewritten is left as it is."""
+    hidden = {f.name for f in TESTS_DIR.glob("*.py")}
+    skipped: dict[str, list[int]] = {}
+    for f in sorted(WORKSPACE.glob("*.py")):
+        if f.name in hidden:
+            continue
+        try:
+            src = (gdir / f.name).read_bytes().removeprefix(b"\xef\xbb\xbf")  # ast columns exclude the BOM
+            stmts = _top_level_skips(ast.parse(src), wide)
+            if not stmts:
+                continue
+            new = _blank_out(src, stmts)
+            ast.parse(new)
+        except Exception:
+            continue
+        (gdir / f.name).write_bytes(new)
+        skipped[f.name] = sorted({n for st in stmts
+                                  for n in range(st.lineno, st.end_lineno + 1)})
+    return skipped
+
+
+class _NothingNew(Exception):
+    """The next retry would grade exactly what the last run already did."""
+
+
+def retry_without_toplevel_calls() -> tuple[dict, str, dict[str, list[int]]] | None:
+    """Collection found no tests: grade again with the student's top-level calls skipped,
+    narrow then wide. -> (report, output, skipped) from the first attempt that collects
+    tests, or None (nothing to skip / didn't help / anything went wrong)."""
+    previous: dict[str, list[int]] = {}
+    for wide in (False, True):
+        skipped: dict[str, list[int]] = {}
+
+        def mutate(gdir, wide=wide):
+            skipped.update(skip_toplevel_calls(gdir, wide))
+            if not skipped or skipped == previous:
+                raise _NothingNew()
+        try:
+            report, output = run_pytest(mutate)
+        except _NothingNew:
+            continue
+        except Exception as e:      # the retry must never cost the student a Release
+            print(f"::warning::retry without top-level calls failed: "
+                  f"{strip_control(str(e))[:200]}")
+            return None
+        if report.get("tests"):
+            return report, output, skipped
+        previous = skipped
+    return None
+
+
+def skip_note(skipped: dict[str, list[int]]) -> str:
+    """One sentence per file naming every skipped original line."""
+    parts = []
+    for name, nums in skipped.items():
+        label = "Line" if len(nums) == 1 else "Lines"
+        parts.append(f"{label} {', '.join(map(str, nums))} of {name} ran at import time "
+                     "and was skipped for grading; put test code under "
+                     '`if __name__ == "__main__":`')
+    return "\n".join(parts)
 
 
 def nice_name(nodeid: str) -> str:
@@ -210,11 +331,14 @@ def log_report(rows: list[dict], traces: list[str]) -> str:
     return "\n".join(lines) + "\n"
 
 
-def release_body(rows: list[dict], traces: list[str], score: int, max_score: int) -> str:
+def release_body(rows: list[dict], traces: list[str], score: int, max_score: int,
+                 note: str = "") -> str:
     """The Release body: score line, per-test table, and a collapsible section with the
     traceback of every failing test (same layout as runner.py render_declarative_body)."""
-    lines = [f"### classroom50 autograde: {score}/{max_score}", "",
-             "| Test | Result | Score |", "|---|---|---|"]
+    lines = [f"### classroom50 autograde: {score}/{max_score}", ""]
+    if note:
+        lines += [f"> {n}  " for n in note.splitlines()] + [""]
+    lines += ["| Test | Result | Score |", "|---|---|---|"]
     for r in rows:
         name = r["test-name"].replace("|", "\\|")
         lines.append(f"| {name} | {'PASS' if r['passed'] else 'FAIL'} | "
@@ -236,6 +360,15 @@ def main() -> int:
     points = int(META.get("points_per_test", 1))
 
     report_tests = report.get("tests") or []
+    skip_text = ""
+    if not report_tests:
+        retried = retry_without_toplevel_calls()
+        if retried:
+            report, pytest_output, skipped = retried
+            report_tests = report["tests"]
+            skip_text = skip_note(skipped)
+            for line in skip_text.splitlines():
+                print(f"::warning::{strip_control(line)}")
     # Names come from meta.json's `tests` — the SAME ordered list Codo is provisioned
     # with (docstring descriptions from collect_tests.py) — paired positionally with
     # pytest's collection order, so the feedback and Codo match exactly. Only trust the
@@ -294,7 +427,7 @@ def main() -> int:
         json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
     # The runner only synthesizes a (trace-less) body when we don't write one.
     (WORKSPACE / "release-body.md").write_text(
-        release_body(rows, traces, result["score"], result["max-score"]), encoding="utf-8")
+        release_body(rows, traces, result["score"], result["max-score"], skip_text), encoding="utf-8")
     print(f"{result['score']}/{result['max-score']} across {len(rows)} test(s)")
     return 0        # a failing grade is not a runner failure
 
