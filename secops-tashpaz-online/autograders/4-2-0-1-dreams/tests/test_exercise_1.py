@@ -46,3 +46,18 @@ def test_parses_payload(frame):
     assert frame.payload == PAYLOAD, (
         f"payload parsed incorrectly: expected {PAYLOAD!r}, got {frame.payload!r}"
     )
+
+
+def test_mac_to_str_formats_example():
+    """The example from the brief: bytes -> 'D4:92:5E:B8:99:37' (uppercase hex, ':'-joined)."""
+    got = Ethernet.mac_to_str(b'\xd4\x92\x5e\xb8\x99\x37')
+    assert got == "D4:92:5E:B8:99:37", f"expected 'D4:92:5E:B8:99:37', got {got!r}"
+
+
+def test_mac_to_str_zero_pads_each_byte():
+    """Every byte is two hex digits: 0x06 -> '06', not '6' (so '06:06:06:06:06:06')."""
+    got = Ethernet.mac_to_str(b'\x06\x06\x06\x06\x06\x06')
+    assert got == "06:06:06:06:06:06", (
+        f"each byte must be zero-padded to two hex digits: "
+        f"expected '06:06:06:06:06:06', got {got!r}"
+    )

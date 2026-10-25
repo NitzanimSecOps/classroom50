@@ -71,7 +71,7 @@ def grading_dir() -> pathlib.Path:
     model: nothing to reconstruct, no package. The student repo is flat (files at root =
     the workspace), so we copy the workspace's root .py + the hidden bundle tests together."""
     d = pathlib.Path(tempfile.mkdtemp(prefix="c50-grade-"))
-    for f in WORKSPACE.glob("*.py"):        # the student's flat code (repo root)
+    for f in [*WORKSPACE.glob("*.py"), *WORKSPACE.glob("*.sh")]:  # the student's flat code (repo root)
         shutil.copy2(f, d / f.name)
     for f in TESTS_DIR.glob("*.py"):        # the hidden tests shipped in the bundle
         shutil.copy2(f, d / f.name)

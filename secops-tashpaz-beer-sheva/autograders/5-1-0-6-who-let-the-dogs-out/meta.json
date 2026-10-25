@@ -16,6 +16,7 @@
     "Only forwarded packets go on the wire — delivered and dropped ones send nothing."
   ],
   "solution_files": [
-    "host.py"
+    "host.py",
+    "selftest.py"
   ]
 }
