@@ -1,0 +1,23 @@
+{
+  "slug": "8-1-1-2-udp-endpoint",
+  "classroom": "secops-tashpaz-beer-sheva",
+  "exercise_id": "8.1.1.2",
+  "points_per_test": 1,
+  "timeout": 300,
+  "tests": [
+    "The server still sends files over TCP, as in the previous exercise",
+    "Over UDP, the server answers with the size of the file in bytes",
+    "Over UDP, the size is read from the real file, not a fixed answer",
+    "Over UDP, a missing file gets the answer ERROR: not found",
+    "Over UDP, a name that climbs out with ../ gets ERROR: not found",
+    "UDP is answered even while a TCP client is connected and silent",
+    "TCP still works right after UDP requests, and UDP right after TCP",
+    "file_size returns the size as a number (int), not text",
+    "file_size sends exactly the file name it was given",
+    "On ERROR: not found, file_size returns None",
+    "If no answer arrives (UDP gives no promise), file_size returns None within 5 seconds"
+  ],
+  "solution_files": [
+    "selftest.py"
+  ]
+}

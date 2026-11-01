@@ -1,0 +1,19 @@
+{
+  "slug": "8-1-0-2-udp-to-tcp",
+  "classroom": "secops-tashpaz-yizrael",
+  "exercise_id": "8.1.0.2",
+  "points_per_test": 1,
+  "timeout": 300,
+  "tests": [
+    "The server accepts a TCP connection on port 2405",
+    "The server answers over TCP with the message reversed",
+    "The server reverses whatever message it gets, not a fixed text",
+    "The server keeps running and answers a second client after the first",
+    "The server was changed to TCP: it no longer answers over UDP"
+  ],
+  "solution_files": [
+    "client.py",
+    "selftest.py",
+    "server.py"
+  ]
+}
