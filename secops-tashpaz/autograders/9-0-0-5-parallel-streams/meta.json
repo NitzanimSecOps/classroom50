@@ -1,0 +1,35 @@
+{
+  "slug": "9-0-0-5-parallel-streams",
+  "classroom": "secops-tashpaz",
+  "exercise_id": "9.0.0.5",
+  "points_per_test": 1,
+  "timeout": 300,
+  "tests": [
+    "download on the control connection answers with a token, the size and the SHA-256",
+    "No file data arrives on the control connection, so the next answer is the next command's",
+    "A second connection with the token gets ok, then the file in chunks of up to 64 KB",
+    "The server closes the data connection after the last chunk",
+    "An empty file gets ok on the data connection, and no chunks",
+    "An unknown token gets an invalid token error",
+    "A token that was already used gets an invalid token error",
+    "Each download gets its own unpredictable token",
+    "A file that does not exist gets a not found error, and no token",
+    "A name that climbs out with ../ gets a not found error, and no token",
+    "Commands on the control connection get answers while a large transfer is in progress",
+    "Two downloads from one client run at the same time and both arrive whole",
+    "The server keeps serving after a data connection dies in the middle of a file",
+    "start_download returns immediately, while the file is still arriving",
+    "The background download saves the file, and sets done and ok to True",
+    "run_command works on the control connection while a download runs",
+    "received grows during the download, and TRANSFERS holds the transfer",
+    "On a wrong SHA-256, ok is False, done is True, and no file is left at dest",
+    "start_download returns None when the server refuses the file",
+    "In client.py, download runs in the background, and transfers shows it"
+  ],
+  "solution_files": [
+    "client.py",
+    "protocol.py",
+    "selftest.py",
+    "server.py"
+  ]
+}

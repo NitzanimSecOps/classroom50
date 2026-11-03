@@ -1,0 +1,357 @@
+"""Tests for 9.0.0.3 File Download - send files in chunks and verify them with a hash.
+
+The student's server.py runs as its own process on 127.0.0.1 and is restarted only if it crashed.
+File names and contents are random. download is tested against a small fake server, which is the
+only way to hand it a corrupted file.
+"""
+import hashlib
+import importlib
+import json
+import os
+import secrets
+import shutil
+import socket
+import struct
+import subprocess
+import sys
+import threading
+import time
+
+import pytest
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+FILES = os.path.join(HERE, "files")
+HOST = "127.0.0.1"
+PORT = 2405
+CHUNK_SIZE = 65536
+
+
+class Server:
+    def __init__(self):
+        self.proc = None
+
+    def ensure_running(self):
+        if self.proc is None or self.proc.poll() is not None:
+            self.proc = subprocess.Popen(
+                [sys.executable, os.path.join(HERE, "server.py")],
+                cwd=HERE, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+            )
+            time.sleep(0.5)
+
+    def stop(self):
+        if self.proc is not None:
+            self.proc.kill()
+            self.proc.wait()
+
+
+@pytest.fixture(scope="module")
+def running():
+    os.makedirs(FILES, exist_ok=True)
+    server = Server()
+    yield server
+    server.stop()
+    shutil.rmtree(FILES, ignore_errors=True)
+
+
+@pytest.fixture
+def server(running):
+    running.ensure_running()
+    return running
+
+
+def put_file(content):
+    name = secrets.token_hex(6) + ".bin"
+    with open(os.path.join(FILES, name), "wb") as f:
+        f.write(content)
+    return name
+
+
+def connect(timeout=5.0):
+    end = time.time() + timeout
+    while time.time() < end:
+        s = socket.socket()
+        s.settimeout(15)
+        try:
+            s.connect((HOST, PORT))
+            return s
+        except OSError:
+            s.close()
+            time.sleep(0.1)
+    pytest.fail("nothing is listening on port 2405")
+
+
+def read_exact(s, n):
+    data = b""
+    while len(data) < n:
+        chunk = s.recv(n - len(data))
+        assert chunk, "the connection closed in the middle of a message"
+        data += chunk
+    return data
+
+
+def send_raw(s, data):
+    s.sendall(struct.pack("!I", len(data)) + data)
+
+
+def send(s, obj):
+    send_raw(s, json.dumps(obj).encode())
+
+
+def read_raw(s):
+    return read_exact(s, struct.unpack("!I", read_exact(s, 4))[0])
+
+
+def read(s):
+    return json.loads(read_raw(s))
+
+
+def fetch(s, name):
+    """Ask for a file and return (file_info, list of chunks)."""
+    send(s, {"type": "download", "path": name})
+    info = read(s)
+    assert info["type"] == "file_info", info
+    chunks = []
+    received = 0
+    while received < info["size"]:
+        chunks.append(read_raw(s))
+        received += len(chunks[-1])
+    return info, chunks
+
+
+def fake_server(content, sha256=None, size=None, cut_after=None):
+    """Answers one download with the given content, optionally lying or stopping early."""
+    listener = socket.socket()
+    listener.bind((HOST, 0))
+    listener.listen()
+    requests = []
+
+    def serve():
+        conn, _ = listener.accept()
+        with conn:
+            conn.settimeout(5)
+            requests.append(read(conn))
+            send(conn, {
+                "type": "file_info",
+                "size": len(content) if size is None else size,
+                "sha256": sha256 or hashlib.sha256(content).hexdigest(),
+            })
+            data = content if cut_after is None else content[:cut_after]
+            for i in range(0, len(data), CHUNK_SIZE):
+                send_raw(conn, data[i:i + CHUNK_SIZE])
+            try:
+                conn.recv(1)
+            except OSError:
+                pass
+
+    threading.Thread(target=serve, daemon=True).start()
+    return listener, requests
+
+
+def client_download(listener, name, dest):
+    import client
+    importlib.reload(client)
+    with socket.create_connection(listener.getsockname()) as s:
+        s.settimeout(5)
+        return client.download(s, name, str(dest))
+
+
+def test_server_announces_the_file(server):
+    """download answers first with file_info holding the size and the SHA-256"""
+    content = secrets.token_bytes(1000)
+    with connect() as s:
+        info, _ = fetch(s, put_file(content))
+    assert info == {
+        "type": "file_info",
+        "size": 1000,
+        "sha256": hashlib.sha256(content).hexdigest(),
+    }
+
+
+def test_server_sends_the_content(server):
+    """After file_info, the chunks put together are exactly the file"""
+    content = bytes(range(256)) * 40
+    with connect() as s:
+        _, chunks = fetch(s, put_file(content))
+    assert b"".join(chunks) == content
+
+
+def test_server_sends_in_chunks(server):
+    """A 3 MB file arrives in several messages, none above 64 KB"""
+    content = secrets.token_bytes(3 * 1024 * 1024)
+    with connect() as s:
+        _, chunks = fetch(s, put_file(content))
+    assert b"".join(chunks) == content
+    assert len(chunks) > 1, "the file was sent as one message"
+    assert max(map(len, chunks)) <= CHUNK_SIZE
+
+
+def test_server_handles_an_empty_file(server):
+    """An empty file gets file_info with size 0, and no chunks"""
+    with connect() as s:
+        info, chunks = fetch(s, put_file(b""))
+        assert info["size"] == 0
+        assert chunks == []
+        send(s, {"type": "exec", "cmd": "echo alive"})
+        assert read(s)["stdout"].strip() == "alive"
+
+
+def test_server_reports_a_missing_file(server):
+    """A file that does not exist gets a not found error"""
+    with connect() as s:
+        send(s, {"type": "download", "path": secrets.token_hex(6) + ".txt"})
+        assert read(s) == {"type": "error", "message": "not found"}
+
+
+def test_server_refuses_to_leave_the_folder(server):
+    """A name that climbs out with ../ gets a not found error, not the outside file"""
+    name = "secret_" + secrets.token_hex(6) + ".txt"
+    path = os.path.join(HERE, name)
+    with open(path, "wb") as f:
+        f.write(b"top secret")
+    try:
+        with connect() as s:
+            send(s, {"type": "download", "path": "../" + name})
+            assert read(s) == {"type": "error", "message": "not found"}
+    finally:
+        os.remove(path)
+
+
+def test_server_refuses_an_absolute_path(server):
+    """A full path gets a not found error, not the outside file"""
+    name = "secret_" + secrets.token_hex(6) + ".txt"
+    path = os.path.join(HERE, name)
+    with open(path, "wb") as f:
+        f.write(b"top secret")
+    try:
+        with connect() as s:
+            send(s, {"type": "download", "path": path})
+            assert read(s) == {"type": "error", "message": "not found"}
+    finally:
+        os.remove(path)
+
+
+def test_server_keeps_the_connection_after_a_download(server):
+    """Commands and more downloads keep working on the same connection"""
+    content = secrets.token_bytes(200000)
+    with connect() as s:
+        _, chunks = fetch(s, put_file(content))
+        assert b"".join(chunks) == content
+        send(s, {"type": "exec", "cmd": "echo alive"})
+        assert read(s)["stdout"].strip() == "alive"
+        _, chunks = fetch(s, put_file(b"again"))
+        assert b"".join(chunks) == b"again"
+
+
+def test_server_survives_a_client_leaving_mid_download(server):
+    """The server survives a client that disconnects in the middle of a download"""
+    name = put_file(secrets.token_bytes(20 * 1024 * 1024))
+    with connect() as s:
+        send(s, {"type": "download", "path": name})
+        assert read(s)["type"] == "file_info", "the download did not start"
+        read_raw(s)
+    time.sleep(0.2)
+    with connect() as s:
+        send(s, {"type": "exec", "cmd": "echo alive"})
+        assert read(s)["stdout"].strip() == "alive"
+
+
+def test_client_saves_the_file(tmp_path):
+    """download asks for the file, saves it to dest and returns the size"""
+    content = secrets.token_bytes(300000)
+    listener, requests = fake_server(content)
+    dest = tmp_path / "out.bin"
+    try:
+        assert client_download(listener, "cats.bin", dest) == 300000
+    finally:
+        listener.close()
+    assert requests == [{"type": "download", "path": "cats.bin"}]
+    assert dest.read_bytes() == content
+
+
+def test_client_handles_an_empty_file(tmp_path):
+    """download saves an empty file and returns 0"""
+    listener, _ = fake_server(b"")
+    dest = tmp_path / "out.bin"
+    try:
+        assert client_download(listener, "empty", dest) == 0
+    finally:
+        listener.close()
+    assert dest.read_bytes() == b""
+
+
+def test_client_rejects_a_wrong_hash(tmp_path):
+    """On a wrong SHA-256, download returns None and leaves no file at dest"""
+    listener, _ = fake_server(b"corrupted content", sha256="0" * 64)
+    dest = tmp_path / "out.bin"
+    try:
+        assert client_download(listener, "a", dest) is None
+    finally:
+        listener.close()
+    assert not dest.exists()
+
+
+def test_client_handles_a_lost_connection(tmp_path):
+    """If the connection closes mid-file, download returns None and leaves no file at dest"""
+    content = secrets.token_bytes(100000)
+    listener = socket.socket()
+    listener.bind((HOST, 0))
+    listener.listen()
+
+    def serve():
+        conn, _ = listener.accept()
+        with conn:
+            read(conn)
+            send(conn, {
+                "type": "file_info",
+                "size": len(content),
+                "sha256": hashlib.sha256(content).hexdigest(),
+            })
+            send_raw(conn, content[:1000])
+
+    threading.Thread(target=serve, daemon=True).start()
+    dest = tmp_path / "out.bin"
+    try:
+        assert client_download(listener, "a", dest) is None
+    finally:
+        listener.close()
+    assert not dest.exists()
+
+
+def test_client_handles_the_error_answer(tmp_path):
+    """On an error answer, download returns None and creates no file"""
+    listener = socket.socket()
+    listener.bind((HOST, 0))
+    listener.listen()
+
+    def serve():
+        conn, _ = listener.accept()
+        with conn:
+            read(conn)
+            send(conn, {"type": "error", "message": "not found"})
+            try:
+                conn.recv(1)
+            except OSError:
+                pass
+
+    threading.Thread(target=serve, daemon=True).start()
+    dest = tmp_path / "out.bin"
+    try:
+        assert client_download(listener, "a", dest) is None
+    finally:
+        listener.close()
+    assert not dest.exists()
+
+
+def test_client_prompt_downloads(server, tmp_path):
+    """download <name> in client.py saves the file to the current folder, and commands still run"""
+    content = secrets.token_bytes(100000)
+    name = put_file(content)
+    token = secrets.token_hex(8)
+    result = subprocess.run(
+        [sys.executable, os.path.join(HERE, "client.py")],
+        input=f"download {name}\necho {token}\nexit\n",
+        capture_output=True, text=True, timeout=20, cwd=tmp_path,
+    )
+    assert result.returncode == 0, result.stderr
+    assert (tmp_path / name).read_bytes() == content
+    assert token in result.stdout

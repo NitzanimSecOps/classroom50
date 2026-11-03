@@ -1,0 +1,29 @@
+{
+  "slug": "9-0-0-4-multiple-clients",
+  "classroom": "secops-tashpaz-online",
+  "exercise_id": "9.0.0.4",
+  "points_per_test": 1,
+  "timeout": 300,
+  "tests": [
+    "Two connected clients both get answers, taking turns",
+    "A client that connected and sent nothing does not block the others",
+    "A client running a slow command does not block another client",
+    "A client that stops reading a large download does not block another client",
+    "20 clients running commands at the same time each get their own answer",
+    "Two clients downloading at the same time each get their own file",
+    "who answers with a clients list that holds the ip and port of the one asking",
+    "who lists the other connected clients too",
+    "A client that disconnected leaves the who list",
+    "A client that crashed leaves the who list",
+    "A client killed in the middle of a download leaves the who list",
+    "The server keeps serving after a client crashes",
+    "who(sock) in client.py returns the list of clients",
+    "who in client.py prints the connected clients"
+  ],
+  "solution_files": [
+    "client.py",
+    "protocol.py",
+    "selftest.py",
+    "server.py"
+  ]
+}

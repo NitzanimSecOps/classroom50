@@ -1,0 +1,30 @@
+{
+  "slug": "9-0-0-3-file-download",
+  "classroom": "secops-tashpaz-beer-sheva",
+  "exercise_id": "9.0.0.3",
+  "points_per_test": 1,
+  "timeout": 300,
+  "tests": [
+    "download answers first with file_info holding the size and the SHA-256",
+    "After file_info, the chunks put together are exactly the file",
+    "A 3 MB file arrives in several messages, none above 64 KB",
+    "An empty file gets file_info with size 0, and no chunks",
+    "A file that does not exist gets a not found error",
+    "A name that climbs out with ../ gets a not found error, not the outside file",
+    "A full path gets a not found error, not the outside file",
+    "Commands and more downloads keep working on the same connection",
+    "The server survives a client that disconnects in the middle of a download",
+    "download asks for the file, saves it to dest and returns the size",
+    "download saves an empty file and returns 0",
+    "On a wrong SHA-256, download returns None and leaves no file at dest",
+    "If the connection closes mid-file, download returns None and leaves no file at dest",
+    "On an error answer, download returns None and creates no file",
+    "download <name> in client.py saves the file to the current folder, and commands still run"
+  ],
+  "solution_files": [
+    "client.py",
+    "protocol.py",
+    "selftest.py",
+    "server.py"
+  ]
+}

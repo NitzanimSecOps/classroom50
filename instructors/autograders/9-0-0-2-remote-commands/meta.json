@@ -1,0 +1,29 @@
+{
+  "slug": "9-0-0-2-remote-commands",
+  "classroom": "instructors",
+  "exercise_id": "9.0.0.2",
+  "points_per_test": 1,
+  "timeout": 300,
+  "tests": [
+    "exec runs the command and returns its stdout in a result message",
+    "stderr comes back in its own field, separate from stdout",
+    "exit_code is 0 on success and the command's own code on failure",
+    "Commands run in a shell, so pipes work",
+    "Several commands run one after another on one connection",
+    "A command that prints 3 MB returns all of it",
+    "Output that is not valid text still gets an answer",
+    "A command stuck for over 5 seconds gets a timeout error and the connection keeps working",
+    "An unknown type gets a bad request error and the connection keeps working",
+    "A message that is not JSON gets a bad request error and the connection keeps working",
+    "The server serves the next client after one disconnects",
+    "run_command sends an exec message and returns the answer as a dictionary",
+    "run_command reads a 3 MB answer whole",
+    "python3 client.py reads commands, prints stdout, and ends on exit"
+  ],
+  "solution_files": [
+    "client.py",
+    "protocol.py",
+    "selftest.py",
+    "server.py"
+  ]
+}
