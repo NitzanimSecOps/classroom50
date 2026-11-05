@@ -10,6 +10,7 @@ import json
 import os
 import secrets
 import shutil
+import signal
 import socket
 import struct
 import subprocess
@@ -24,6 +25,62 @@ FILES = os.path.join(HERE, "files")
 HOST = "127.0.0.1"
 PORT = 2405
 CHUNK_SIZE = 65536
+
+
+# Hard time limit per test. A student's endless loop (or a call that never returns) would otherwise
+# hang the whole run until the grader is killed and no score is posted at all.
+TEST_LIMIT = 10  # seconds, for every test not listed below
+LIMITS = {}
+TIMED_OUT = []
+
+
+class Guard:
+    """Hard time limit per test, and a clean exit even if a student thread never ends.
+
+    The timer only runs while the test function itself runs (not during setup, teardown or
+    pytest's own reporting), so a late alarm can never fail pytest instead of the test.
+    """
+
+    status = 0
+    armed = False
+
+    def on_alarm(self, signum, frame):
+        if not self.armed:
+            return
+        TIMED_OUT.append(self.name)
+        # Fire again soon: a bare "except:" in the student's code could swallow this failure.
+        signal.setitimer(signal.ITIMER_REAL, 0.5)
+        pytest.fail(f"took longer than {self.limit} s (an endless loop or a blocking call?)")
+
+    @pytest.hookimpl(hookwrapper=True)
+    def pytest_runtest_call(self, item):
+        self.name = item.name
+        self.limit = LIMITS.get(item.name, TEST_LIMIT)
+        old = signal.signal(signal.SIGALRM, self.on_alarm)
+        self.armed = True
+        signal.setitimer(signal.ITIMER_REAL, self.limit)
+        try:
+            yield
+        finally:
+            self.armed = False
+            signal.setitimer(signal.ITIMER_REAL, 0)
+            signal.signal(signal.SIGALRM, old)
+
+    def pytest_sessionfinish(self, exitstatus):
+        self.status = int(exitstatus)
+
+    @pytest.hookimpl(trylast=True)
+    def pytest_unconfigure(self, config):
+        strays = [t for t in threading.enumerate() if t.is_alive() and not t.daemon and t is not threading.main_thread()]
+        if strays:
+            sys.stdout.flush()
+            sys.stderr.flush()
+            os._exit(self.status)
+
+
+@pytest.fixture(scope="session", autouse=True)
+def hard_limits(request):
+    request.config.pluginmanager.register(Guard())
 
 
 class Server:
@@ -55,6 +112,9 @@ def running():
 
 @pytest.fixture
 def server(running):
+    if TIMED_OUT:  # the last test timed out, maybe stuck in the server: start it fresh
+        TIMED_OUT.clear()
+        running.stop()
     running.ensure_running()
     return running
 

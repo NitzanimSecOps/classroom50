@@ -6,6 +6,7 @@ student's server.py runs as its own process on 127.0.0.1 and is restarted only i
 import importlib
 import os
 import secrets
+import signal
 import socket
 import struct
 import subprocess
@@ -18,6 +19,62 @@ import pytest
 HERE = os.path.dirname(os.path.abspath(__file__))
 HOST = "127.0.0.1"
 PORT = 2405
+
+
+# Hard time limit per test. A student's endless loop (or a call that never returns) would otherwise
+# hang the whole run until the grader is killed and no score is posted at all.
+TEST_LIMIT = 10  # seconds, for every test not listed below
+LIMITS = {}
+TIMED_OUT = []
+
+
+class Guard:
+    """Hard time limit per test, and a clean exit even if a student thread never ends.
+
+    The timer only runs while the test function itself runs (not during setup, teardown or
+    pytest's own reporting), so a late alarm can never fail pytest instead of the test.
+    """
+
+    status = 0
+    armed = False
+
+    def on_alarm(self, signum, frame):
+        if not self.armed:
+            return
+        TIMED_OUT.append(self.name)
+        # Fire again soon: a bare "except:" in the student's code could swallow this failure.
+        signal.setitimer(signal.ITIMER_REAL, 0.5)
+        pytest.fail(f"took longer than {self.limit} s (an endless loop or a blocking call?)")
+
+    @pytest.hookimpl(hookwrapper=True)
+    def pytest_runtest_call(self, item):
+        self.name = item.name
+        self.limit = LIMITS.get(item.name, TEST_LIMIT)
+        old = signal.signal(signal.SIGALRM, self.on_alarm)
+        self.armed = True
+        signal.setitimer(signal.ITIMER_REAL, self.limit)
+        try:
+            yield
+        finally:
+            self.armed = False
+            signal.setitimer(signal.ITIMER_REAL, 0)
+            signal.signal(signal.SIGALRM, old)
+
+    def pytest_sessionfinish(self, exitstatus):
+        self.status = int(exitstatus)
+
+    @pytest.hookimpl(trylast=True)
+    def pytest_unconfigure(self, config):
+        strays = [t for t in threading.enumerate() if t.is_alive() and not t.daemon and t is not threading.main_thread()]
+        if strays:
+            sys.stdout.flush()
+            sys.stderr.flush()
+            os._exit(self.status)
+
+
+@pytest.fixture(scope="session", autouse=True)
+def hard_limits(request):
+    request.config.pluginmanager.register(Guard())
 
 
 class Server:
@@ -47,6 +104,9 @@ def running():
 
 @pytest.fixture
 def server(running):
+    if TIMED_OUT:  # the last test timed out, maybe stuck in the server: start it fresh
+        TIMED_OUT.clear()
+        running.stop()
     running.ensure_running()
     return running
 
@@ -117,7 +177,7 @@ def test_recv_exact_keeps_reading(pair):
     """recv_exact keeps reading when the bytes arrive one at a time"""
     a, b = pair
     p = protocol()
-    t = threading.Thread(target=send_slowly, args=(a, b"abcdefgh"))
+    t = threading.Thread(target=send_slowly, args=(a, b"abcdefgh"), daemon=True)
     t.start()
     assert p.recv_exact(b, 8) == b"abcdefgh"
     t.join()
@@ -149,7 +209,7 @@ def test_recv_msg_handles_a_split_message(pair):
     """recv_msg handles a message that arrives one byte at a time, even the length"""
     a, b = pair
     p = protocol()
-    t = threading.Thread(target=send_slowly, args=(a, frame(b"split me")))
+    t = threading.Thread(target=send_slowly, args=(a, frame(b"split me")), daemon=True)
     t.start()
     assert p.recv_msg(b) == b"split me"
     t.join()
@@ -170,7 +230,7 @@ def test_recv_msg_handles_a_large_message(pair):
     a, b = pair
     p = protocol()
     content = secrets.token_bytes(5 * 1024 * 1024)
-    t = threading.Thread(target=p.send_msg, args=(a, content))
+    t = threading.Thread(target=p.send_msg, args=(a, content), daemon=True)
     t.start()
     assert p.recv_msg(b) == content
     t.join()
