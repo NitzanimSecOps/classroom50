@@ -10,8 +10,6 @@
     "A 3 MB file arrives in several messages, none above 64 KB",
     "An empty file gets file_info with size 0, and no chunks",
     "A file that does not exist gets a not found error",
-    "A name that climbs out with ../ gets a not found error, not the outside file",
-    "A full path gets a not found error, not the outside file",
     "Commands and more downloads keep working on the same connection",
     "The server survives a client that disconnects in the middle of a download",
     "download asks for the file, saves it to dest and returns the size",

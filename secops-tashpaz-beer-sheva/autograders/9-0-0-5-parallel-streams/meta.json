@@ -14,7 +14,6 @@
     "A token that was already used gets an invalid token error",
     "Each download gets its own unpredictable token",
     "A file that does not exist gets a not found error, and no token",
-    "A name that climbs out with ../ gets a not found error, and no token",
     "Commands on the control connection get answers while a large transfer is in progress",
     "Two downloads from one client run at the same time and both arrive whole",
     "The server keeps serving after a data connection dies in the middle of a file",

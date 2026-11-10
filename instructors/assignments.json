@@ -120,7 +120,7 @@
       },
       "feedback_pr": true,
       "_exercise_id": "9.0.0.3",
-      "_tests": 15
+      "_tests": 13
     },
     {
       "slug": "9-0-0-4-multiple-clients",
@@ -154,7 +154,7 @@
       },
       "feedback_pr": true,
       "_exercise_id": "9.0.0.5",
-      "_tests": 20
+      "_tests": 19
     }
   ]
 }

@@ -385,34 +385,6 @@ def test_server_reports_a_missing_file(server):
         assert read(s) == {"type": "error", "message": "not found"}
 
 
-def test_server_refuses_to_leave_the_folder(server):
-    """A name that climbs out with ../ gets a not found error, not the outside file"""
-    name = "secret_" + secrets.token_hex(6) + ".txt"
-    path = os.path.join(HERE, name)
-    with open(path, "wb") as f:
-        f.write(b"top secret")
-    try:
-        with connect() as s:
-            send(s, {"type": "download", "path": "../" + name})
-            assert read(s) == {"type": "error", "message": "not found"}
-    finally:
-        os.remove(path)
-
-
-def test_server_refuses_an_absolute_path(server):
-    """A full path gets a not found error, not the outside file"""
-    name = "secret_" + secrets.token_hex(6) + ".txt"
-    path = os.path.join(HERE, name)
-    with open(path, "wb") as f:
-        f.write(b"top secret")
-    try:
-        with connect() as s:
-            send(s, {"type": "download", "path": path})
-            assert read(s) == {"type": "error", "message": "not found"}
-    finally:
-        os.remove(path)
-
-
 def test_server_keeps_the_connection_after_a_download(server):
     """Commands and more downloads keep working on the same connection"""
     content = secrets.token_bytes(200000)

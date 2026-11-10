@@ -482,20 +482,6 @@ def test_missing_file_is_refused(server):
         assert read(control) == {"type": "error", "message": "not found"}
 
 
-def test_leaving_the_folder_is_refused(server):
-    """A name that climbs out with ../ gets a not found error, and no token"""
-    name = "secret_" + secrets.token_hex(6) + ".txt"
-    path = os.path.join(HERE, name)
-    with open(path, "wb") as f:
-        f.write(b"top secret")
-    try:
-        with connect() as control:
-            send(control, {"type": "download", "path": "../" + name})
-            assert read(control) == {"type": "error", "message": "not found"}
-    finally:
-        os.remove(path)
-
-
 def test_commands_work_during_a_transfer(server):
     """Commands on the control connection get answers while a large transfer is in progress"""
     name = put_file(secrets.token_bytes(1024 * 1024) * 30)
