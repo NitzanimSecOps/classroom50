@@ -40,6 +40,19 @@ hidden tests are never altered, and the student checkout is never touched. A ret
 submission scores normally, and a note (Release body + Actions log) names each skipped
 line. Anything the retry can't fix (SyntaxError, missing name, bad test module...) falls
 back to the ordinary collection-error row; a submission that collects is graded as before.
+
+Timeout path: student code that never returns (an endless loop, a blocking accept()/recv())
+used to kill the job with TimeoutExpired and publish nothing. Now pytest runs in its own
+process group; at the deadline the WHOLE group is SIGKILLed, and we grade what finished.
+pytest-json-report writes nothing until the session ends, so a tiny recorder plugin,
+generated here at run time and loaded with `-p`, logs the collected node ids and every test
+report to a file as they happen. Finished tests keep their real outcome; the test that was
+running and every test that never ran fail with score 0. meta.json `timeout` limits the
+first run; the first run plus the top-level-call retries share a budget of 2 x timeout (each
+retry gets what is left). A note above the table (Release body + one Actions log line)
+gives the timeout and the row that was running; the result is still published and we still
+exit 0. If collection itself never finished and meta.json lists the tests, every listed row
+fails.
 """
 from __future__ import annotations
 
@@ -49,9 +62,11 @@ import os
 import pathlib
 import re
 import shutil
+import signal
 import subprocess
 import sys
 import tempfile
+import time
 import urllib.parse
 
 BUNDLE = pathlib.Path(__file__).resolve().parent
@@ -92,33 +107,137 @@ def grading_dir() -> pathlib.Path:
     return d
 
 
-def run_pytest(mutate=None) -> tuple[dict, str]:
-    """Run pytest → (parsed json report, combined stdout+stderr). The output is
+# The recorder plugin, written to its own temp dir at run time (the bundle is one file).
+# It appends one JSON line per event, so the data survives a SIGKILL.
+_RECORDER = """\
+import json, os
+_fd = None
+def _w(rec):
+    global _fd
+    if _fd is None:
+        _fd = os.open(%(path)r, os.O_WRONLY | os.O_APPEND | os.O_CREAT)
+    os.write(_fd, (json.dumps(rec) + "\\n").encode("utf-8", "replace"))
+def pytest_collection_finish(session):
+    _w({"e": "collected", "ids": [i.nodeid for i in session.items]})
+def pytest_runtest_logstart(nodeid, location):
+    _w({"e": "start", "id": nodeid})
+def pytest_runtest_logreport(report):
+    text = report.longreprtext if report.outcome == "failed" else ""
+    _w({"e": "report", "id": report.nodeid, "when": report.when,
+        "outcome": report.outcome, "longrepr": text})
+"""
+
+
+def report_from_record(path: pathlib.Path) -> tuple[dict, str | None, bool]:
+    """Rebuild a pytest-json-report-shaped dict from the recorder's log of a killed run.
+    -> ({"tests": [...]} for every COLLECTED test, node id of the test that was running,
+    whether the run stopped short: some test started but not every collected test
+    finished). A test counts as finished only once its teardown was reported."""
+    collected: list[str] = []
+    started: list[str] = []
+    phases: dict[str, dict] = {}
+    try:
+        lines = path.read_text(encoding="utf-8", errors="replace").splitlines()
+    except OSError:
+        lines = []
+    for line in lines:
+        try:
+            rec = json.loads(line)
+        except json.JSONDecodeError:      # a line cut off by the kill
+            continue
+        if rec.get("e") == "collected":
+            collected = list(rec.get("ids") or [])
+        elif rec.get("e") == "start":
+            started.append(rec["id"])
+        elif rec.get("e") == "report":
+            phases.setdefault(rec["id"], {})[rec["when"]] = {
+                "outcome": rec["outcome"], "longrepr": rec.get("longrepr", "")}
+    tests, running, short = [], None, False
+    for nid in collected:
+        ph = phases.get(nid, {})
+        if "teardown" in ph:
+            if any(p["outcome"] == "failed" for p in ph.values()):
+                outcome = "failed"
+            elif ph.get("setup", {}).get("outcome") == "skipped":
+                outcome = "skipped"
+            else:
+                outcome = ph.get("call", {}).get("outcome", "failed")
+            tests.append({"nodeid": nid, "outcome": outcome, **ph})
+            continue
+        short = short or bool(started)
+        if nid in started:
+            running = nid
+            msg = "This test was still running when the time limit was reached."
+        else:
+            msg = "This test did not run: the tests stopped before reaching it."
+        tests.append({"nodeid": nid, "outcome": "failed",
+                      "call": {"outcome": "failed", "longrepr": msg}})
+    return {"tests": tests}, running, short
+
+
+def _kill_group(proc: subprocess.Popen) -> None:
+    try:
+        os.killpg(proc.pid, signal.SIGKILL)     # pytest leads its own process group
+    except (ProcessLookupError, PermissionError):
+        pass
+    proc.kill()
+
+
+def run_pytest(mutate=None, limit: float | None = None) -> tuple[dict, str, dict | None]:
+    """Run pytest -> (parsed json report, combined stdout+stderr, hang). The output is
     returned (not discarded) so a collection/import error can be SURFACED rather than
-    reduced to a cryptic 0/1."""
+    reduced to a cryptic 0/1. `hang` is None, or {"running": node id or None} when the
+    run hit `limit` (default meta.json `timeout`): the process group was killed and the
+    report is rebuilt from the recorder."""
     gdir = grading_dir()
     if mutate:
         mutate(gdir)
-    out = pathlib.Path(tempfile.mkdtemp(prefix="c50-pytest-")) / "report.json"
+    tmp = pathlib.Path(tempfile.mkdtemp(prefix="c50-pytest-"))
+    out = tmp / "report.json"
+    record = tmp / "record.jsonl"
+    recdir = tmp / "rec"
+    recdir.mkdir()
+    (recdir / "c50_recorder.py").write_text(_RECORDER % {"path": str(record)}, encoding="utf-8")
     env = dict(os.environ)
     env["PYTHONPATH"] = os.pathsep.join(
-        [str(gdir)] + ([env["PYTHONPATH"]] if env.get("PYTHONPATH") else []))
+        [str(gdir), str(recdir)] + ([env["PYTHONPATH"]] if env.get("PYTHONPATH") else []))
     env["PYTHONDONTWRITEBYTECODE"] = "1"
-    proc = subprocess.run(
+    if limit is None:
+        limit = META.get("timeout", 300)
+    proc = subprocess.Popen(
         [sys.executable, "-m", "pytest", ".", "-q", "--no-header", "--tb=short",
-         "-p", "no:cacheprovider",
+         "-p", "no:cacheprovider", "-p", "c50_recorder",
          "--json-report", f"--json-report-file={out}"],
-        cwd=str(gdir), env=env, check=False, capture_output=True, text=True,
-        timeout=META.get("timeout", 300))
-    output = (proc.stdout or "") + (proc.stderr or "")
+        cwd=str(gdir), env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+        text=True, start_new_session=True)
+    hang = None
+    try:
+        stdout, stderr = proc.communicate(timeout=limit)
+    except subprocess.TimeoutExpired:
+        _kill_group(proc)
+        try:
+            stdout, stderr = proc.communicate(timeout=5)
+        except subprocess.TimeoutExpired:     # something outside the group holds the pipes
+            stdout = stderr = ""
+        report, running, _ = report_from_record(record)
+        hang = {"running": running}
+    output = (stdout or "") + (stderr or "")
     # A SyntaxError names the file by absolute path; show it as the flat name it is.
     output = output.replace(str(gdir) + os.sep, "")
+    if hang:
+        return report, output, hang
+    # A short report: pytest ended (INTERNALERROR = exit 3, pytest.exit(returncode=0)) with
+    # collected tests unfinished. The json report would list the interrupted test as
+    # passed, so trust the recorder: only tests whose teardown was reported keep their outcome.
+    rec_report, _, short = report_from_record(record)
+    if rec_report["tests"] and (short or proc.returncode == 3):
+        return rec_report, output, None
     if not out.is_file():
-        return {}, output
+        return {}, output, None
     try:
-        return json.loads(out.read_text(encoding="utf-8", errors="replace")), output
+        return json.loads(out.read_text(encoding="utf-8", errors="replace")), output, None
     except json.JSONDecodeError:
-        return {}, output
+        return {}, output, None
 
 
 def _top_level_skips(tree: ast.Module, wide: bool) -> list[ast.stmt]:
@@ -189,12 +308,16 @@ class _NothingNew(Exception):
     """The next retry would grade exactly what the last run already did."""
 
 
-def retry_without_toplevel_calls() -> tuple[dict, str, dict[str, list[int]]] | None:
+def retry_without_toplevel_calls(deadline: float) -> tuple[dict, str, dict[str, list[int]], dict | None] | None:
     """Collection found no tests: grade again with the student's top-level calls skipped,
-    narrow then wide. -> (report, output, skipped) from the first attempt that collects
-    tests, or None (nothing to skip / didn't help / anything went wrong)."""
+    narrow then wide, each within what is left of the time budget (`deadline`, monotonic).
+    -> (report, output, skipped, hang) from the first attempt that collects tests, or
+    None (nothing to skip / didn't help / out of time / anything went wrong)."""
     previous: dict[str, list[int]] = {}
     for wide in (False, True):
+        left = deadline - time.monotonic()
+        if left < 1:
+            return None
         skipped: dict[str, list[int]] = {}
 
         def mutate(gdir, wide=wide):
@@ -202,7 +325,7 @@ def retry_without_toplevel_calls() -> tuple[dict, str, dict[str, list[int]]] | N
             if not skipped or skipped == previous:
                 raise _NothingNew()
         try:
-            report, output = run_pytest(mutate)
+            report, output, hang = run_pytest(mutate, limit=left)
         except _NothingNew:
             continue
         except Exception as e:      # the retry must never cost the student a Release
@@ -210,7 +333,7 @@ def retry_without_toplevel_calls() -> tuple[dict, str, dict[str, list[int]]] | N
                   f"{strip_control(str(e))[:200]}")
             return None
         if report.get("tests"):
-            return report, output, skipped
+            return report, output, skipped, hang
         previous = skipped
     return None
 
@@ -356,15 +479,17 @@ def release_body(rows: list[dict], traces: list[str], score: int, max_score: int
 
 def main() -> int:
     ensure_deps()
-    report, pytest_output = run_pytest()
+    timeout = META.get("timeout", 300)
+    deadline = time.monotonic() + 2 * timeout      # first run + retries share this
+    report, pytest_output, hang = run_pytest()
     points = int(META.get("points_per_test", 1))
 
     report_tests = report.get("tests") or []
     skip_text = ""
     if not report_tests:
-        retried = retry_without_toplevel_calls()
+        retried = retry_without_toplevel_calls(deadline)
         if retried:
-            report, pytest_output, skipped = retried
+            report, pytest_output, skipped, hang = retried
             report_tests = report["tests"]
             skip_text = skip_note(skipped)
             for line in skip_text.splitlines():
@@ -375,6 +500,12 @@ def main() -> int:
     # pairing when the counts line up; otherwise fall back to per-test nice_name so a
     # drifted/partial collection can never mislabel a row.
     meta_tests = META.get("tests") or []
+    if hang and not report_tests and meta_tests:
+        # collection never finished: nothing was graded, so every listed row fails
+        report_tests = [{"nodeid": "?", "outcome": "failed",
+                         "call": {"outcome": "failed", "longrepr":
+                                  "Collection did not finish: the tests stopped at import time."}}
+                        for _ in meta_tests]
     use_meta = bool(meta_tests) and len(meta_tests) == len(report_tests)
     rows, traces = [], []    # traces[i] = row i's traceback ("" when it passed)
     for i, t in enumerate(report_tests):
@@ -386,12 +517,24 @@ def main() -> int:
                      "max-score": points})
         traces.append("" if passed else failure_trace(t))
 
+    if hang:
+        running = hang.get("running")
+        where = ""
+        for t, r in zip(report_tests, rows):
+            if running and t.get("nodeid") == running:
+                where = f" (while running: {strip_control(r['test-name'])})"
+        n = int(timeout) if float(timeout).is_integer() else timeout
+        hang_text = (f"The tests stopped after {n} s, probably an endless loop or a "
+                     f"blocking call{where}.")
+        print(f"::warning::{hang_text}")
+        skip_text = "\n".join(x for x in (skip_text, hang_text) if x)
+
     if not rows:
         # No tests collected — a collection/import error (wrong or broken solution),
         # a missing solution file, or pytest failing to run. Surface the ACTUAL reason
         # instead of a bare 0/1: name the row with the specific error and carry pytest's
         # output as its trace, so a student sees WHY, not a cryptic "pytest collection".
-        reason = error_reason(pytest_output)
+        reason = f"timed out after {timeout} s" if hang else error_reason(pytest_output)
         print(f"::error::no tests collected — {reason}")
         rows = [{"test-name": f"pytest collection error: {reason}"[:200],
                  "passed": False, "score": 0, "max-score": points}]
