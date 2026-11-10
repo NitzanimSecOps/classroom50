@@ -11,6 +11,7 @@ import socket
 import struct
 import subprocess
 import sys
+import tempfile
 import threading
 import time
 
@@ -60,6 +61,24 @@ class Guard:
             signal.setitimer(signal.ITIMER_REAL, 0)
             signal.signal(signal.SIGALRM, old)
 
+    @pytest.hookimpl(hookwrapper=True)
+    def pytest_runtest_makereport(self, item, call):
+        report = (yield).get_result()
+        if report.when == "call" and report.failed:
+            # A wrong answer is often a crash in disguise: say so in the feedback the student sees.
+            if SERVER and SERVER.proc is not None:
+                for _ in range(5):
+                    if SERVER.proc.poll() is not None:
+                        break
+                    time.sleep(0.1)
+                text = str(report.longrepr)
+                if "your server.py " not in text and server_crashed():
+                    note = server_crashed().strip()
+                    if hasattr(report.longrepr, "addsection"):
+                        report.longrepr.addsection("server.py", note)
+                    else:
+                        report.longrepr = text + "\n" + note
+
     def pytest_sessionfinish(self, exitstatus):
         self.status = int(exitstatus)
 
@@ -80,26 +99,70 @@ def hard_limits(request):
 class Server:
     def __init__(self):
         self.proc = None
+        self.log = None
+        self.crash = None  # why the previous server process died, for the next test's message
+        self.lock = threading.Lock()  # tests with many client threads may all ask for a restart
 
     def ensure_running(self):
-        if self.proc is None or self.proc.poll() is not None:
-            self.proc = subprocess.Popen(
-                [sys.executable, os.path.join(HERE, "server.py")],
-                cwd=HERE, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-            )
-            time.sleep(0.5)
+        with self.lock:
+            self.crash = self.why_it_died()
+            if self.proc is None or self.proc.poll() is not None:
+                self.close_log()
+                self.log = tempfile.TemporaryFile()
+                self.proc = subprocess.Popen(
+                    [sys.executable, os.path.join(HERE, "server.py")],
+                    cwd=HERE, stdout=subprocess.DEVNULL, stderr=self.log,
+                )
+                time.sleep(0.5)
+
+    def why_it_died(self):
+        """The end of the server's error output, if it has stopped."""
+        if self.proc is None or self.proc.poll() is None:
+            return None
+        self.log.seek(0)
+        lines = self.log.read().decode(errors="replace").strip().splitlines()
+        if not lines:
+            return (f"your server.py stopped by itself (exit code {self.proc.returncode}, no error), so "
+                    "nothing is listening any more: does it keep waiting for clients in a loop?")
+        # the last line of the student's own code in the traceback, then the error itself
+        own = [i for i, line in enumerate(lines) if line.strip().startswith('File "')
+               and os.path.dirname(line.split('"')[1]) == HERE]
+        shown = lines[own[-1]:own[-1] + 2] if own else []
+        text = "your server.py crashed:\n" + "\n".join(shown + [lines[-1]])
+        if "Address already in use" in text:
+            text += ("\n(the port is still held by the previous run; set "
+                     "s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) before bind)")
+        return text
+
+    def close_log(self):
+        if self.log is not None:
+            self.log.close()
+            self.log = None
 
     def stop(self):
         if self.proc is not None:
             self.proc.kill()
             self.proc.wait()
+            self.proc = None
+        self.close_log()
+
+
+SERVER = None  # the running Server, so the helpers below can say why a connection failed
 
 
 @pytest.fixture(scope="module")
 def running():
-    server = Server()
-    yield server
-    server.stop()
+    global SERVER
+    SERVER = Server()
+    yield SERVER
+    SERVER.stop()
+    SERVER = None
+
+
+def server_crashed():
+    """A sentence about the server process dying, or "" if it is still running."""
+    why = SERVER.why_it_died() if SERVER else None
+    return f"\n{why}" if why else ""
 
 
 @pytest.fixture
@@ -140,8 +203,12 @@ def connect(timeout=5.0):
             return s
         except OSError:
             s.close()
+            if SERVER and SERVER.proc is not None and SERVER.proc.poll() is not None and not SERVER.crash:
+                # It died just after the previous test ended: start it once more, so a crash is
+                # graded in the test that caused it and not in this one too.
+                SERVER.ensure_running()
             time.sleep(0.1)
-    pytest.fail("nothing is listening on port 2405")
+    pytest.fail("nothing is listening on port 2405" + server_crashed())
 
 
 def read_exact(s, n):
@@ -154,7 +221,20 @@ def read_exact(s, n):
 
 
 def read_frame(s):
-    return read_exact(s, struct.unpack("!I", read_exact(s, 4))[0])
+    """One framed answer from the server, with a failure message that says what went wrong."""
+    # pytest.fail is called outside the except blocks, so the report shows only our message
+    problem = None
+    try:
+        size = struct.unpack("!I", read_exact(s, 4))[0]
+        body = read_exact(s, size)
+    except socket.timeout:
+        problem = f"waited {s.gettimeout():g} s for the server's answer and nothing came"
+    except (AssertionError, ConnectionError):
+        time.sleep(0.3)  # give a crashing server a moment to exit and write its error
+        problem = "the server closed the connection instead of answering"
+    if problem:
+        pytest.fail(problem + server_crashed())
+    return body
 
 
 def send_slowly(sock, data):
