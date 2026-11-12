@@ -1,0 +1,24 @@
+{
+  "slug": "9-2-0-1-path-traversal",
+  "classroom": "secops-tashpaz-online",
+  "exercise_id": "9.2.0.1",
+  "points_per_test": 1,
+  "timeout": 300,
+  "tests": [
+    "A normal file in files still downloads",
+    "A file in a subfolder of files (sub/a.txt) downloads",
+    "A legal name with dots in it (a..b.txt) downloads",
+    "A name that climbs out with ../ gets a not found error",
+    "A full path gets a not found error",
+    "A name that goes into a subfolder and climbs out (sub/../../) gets a not found error",
+    "A folder next to files whose name starts with files gets a not found error",
+    "A symlink inside files that points outside it gets a not found error",
+    "After a refused request the connection keeps working"
+  ],
+  "solution_files": [
+    "client.py",
+    "protocol.py",
+    "selftest.py",
+    "server.py"
+  ]
+}

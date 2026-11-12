@@ -155,6 +155,23 @@
       "feedback_pr": true,
       "_exercise_id": "9.0.0.5",
       "_tests": 19
+    },
+    {
+      "slug": "9-2-0-1-path-traversal",
+      "name": "9.2.0.1 Path Traversal",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": "ubuntu-latest"
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-9-2-0-1-path-traversal",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "9.2.0.1",
+      "_tests": 9
     }
   ]
 }
