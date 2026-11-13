@@ -22,6 +22,7 @@
   ],
   "solution_files": [
     "client.py",
+    "file_utils.py",
     "protocol.py",
     "selftest.py",
     "server.py"

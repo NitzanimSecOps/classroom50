@@ -330,12 +330,13 @@ def fake_server(content, sha256=None, size=None, cut_after=None):
     return listener, requests
 
 
-def client_download(listener, name, dest):
+def client_download(listener, name):
+    """Call the student's download(sock, name); it saves into downloads/ under the current folder."""
     import client
     importlib.reload(client)
     with socket.create_connection(listener.getsockname()) as s:
         s.settimeout(5)
-        return client.download(s, name, str(dest))
+        return client.download(s, name)
 
 
 def test_server_announces_the_file(server):
@@ -410,43 +411,47 @@ def test_server_survives_a_client_leaving_mid_download(server):
         assert read(s)["stdout"].strip() == "alive"
 
 
-def test_client_saves_the_file(tmp_path):
-    """download asks for the file, saves it to dest and returns the size"""
+def test_client_saves_the_file(tmp_path, monkeypatch):
+    """download asks for the file, saves it in downloads/ and returns the size"""
+    monkeypatch.chdir(tmp_path)
     content = secrets.token_bytes(300000)
     listener, requests = fake_server(content)
-    dest = tmp_path / "out.bin"
+    dest = tmp_path / "downloads" / "cats.bin"
     try:
-        assert client_download(listener, "cats.bin", dest) == 300000
+        assert client_download(listener, "cats.bin") == 300000
     finally:
         listener.close()
     assert requests == [{"type": "download", "path": "cats.bin"}]
     assert dest.read_bytes() == content
 
 
-def test_client_handles_an_empty_file(tmp_path):
+def test_client_handles_an_empty_file(tmp_path, monkeypatch):
     """download saves an empty file and returns 0"""
+    monkeypatch.chdir(tmp_path)
     listener, _ = fake_server(b"")
-    dest = tmp_path / "out.bin"
+    dest = tmp_path / "downloads" / "empty"
     try:
-        assert client_download(listener, "empty", dest) == 0
+        assert client_download(listener, "empty") == 0
     finally:
         listener.close()
     assert dest.read_bytes() == b""
 
 
-def test_client_rejects_a_wrong_hash(tmp_path):
-    """On a wrong SHA-256, download returns None and leaves no file at dest"""
+def test_client_rejects_a_wrong_hash(tmp_path, monkeypatch):
+    """On a wrong SHA-256, download returns None and leaves no file in downloads"""
+    monkeypatch.chdir(tmp_path)
     listener, _ = fake_server(b"corrupted content", sha256="0" * 64)
-    dest = tmp_path / "out.bin"
+    dest = tmp_path / "downloads" / "a"
     try:
-        assert client_download(listener, "a", dest) is None
+        assert client_download(listener, "a") is None
     finally:
         listener.close()
     assert not dest.exists()
 
 
-def test_client_handles_a_lost_connection(tmp_path):
-    """If the connection closes mid-file, download returns None and leaves no file at dest"""
+def test_client_handles_a_lost_connection(tmp_path, monkeypatch):
+    """If the connection closes mid-file, download returns None and leaves no file in downloads"""
+    monkeypatch.chdir(tmp_path)
     content = secrets.token_bytes(100000)
     listener = socket.socket()
     listener.bind((HOST, 0))
@@ -464,16 +469,17 @@ def test_client_handles_a_lost_connection(tmp_path):
             send_raw(conn, content[:1000])
 
     threading.Thread(target=serve, daemon=True).start()
-    dest = tmp_path / "out.bin"
+    dest = tmp_path / "downloads" / "a"
     try:
-        assert client_download(listener, "a", dest) is None
+        assert client_download(listener, "a") is None
     finally:
         listener.close()
     assert not dest.exists()
 
 
-def test_client_handles_the_error_answer(tmp_path):
+def test_client_handles_the_error_answer(tmp_path, monkeypatch):
     """On an error answer, download returns None and creates no file"""
+    monkeypatch.chdir(tmp_path)
     listener = socket.socket()
     listener.bind((HOST, 0))
     listener.listen()
@@ -489,16 +495,16 @@ def test_client_handles_the_error_answer(tmp_path):
                 pass
 
     threading.Thread(target=serve, daemon=True).start()
-    dest = tmp_path / "out.bin"
+    dest = tmp_path / "downloads" / "a"
     try:
-        assert client_download(listener, "a", dest) is None
+        assert client_download(listener, "a") is None
     finally:
         listener.close()
     assert not dest.exists()
 
 
 def test_client_prompt_downloads(server, tmp_path):
-    """download <name> in client.py saves the file to the current folder, and commands still run"""
+    """download <name> in client.py saves the file in downloads/, and commands still run"""
     content = secrets.token_bytes(100000)
     name = put_file(content)
     token = secrets.token_hex(8)
@@ -508,5 +514,5 @@ def test_client_prompt_downloads(server, tmp_path):
         capture_output=True, text=True, timeout=20, cwd=tmp_path,
     )
     assert result.returncode == 0, result.stderr
-    assert (tmp_path / name).read_bytes() == content
+    assert (tmp_path / "downloads" / name).read_bytes() == content
     assert token in result.stdout
