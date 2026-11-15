@@ -867,6 +867,40 @@
       "feedback_pr": true,
       "_exercise_id": "9.2.0.1",
       "_tests": 9
+    },
+    {
+      "slug": "8-1-0-4-who-s-there",
+      "name": "8.1.0.4 Who's There",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": "ubuntu-latest"
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-8-1-0-4-who-s-there",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "8.1.0.4",
+      "_tests": 13
+    },
+    {
+      "slug": "8-1-0-5-serve-me",
+      "name": "8.1.0.5 Serve Me",
+      "mode": "individual",
+      "autograder": "default",
+      "runtime": {
+        "runs-on": "ubuntu-latest"
+      },
+      "template": {
+        "owner": "NitzanimSecOps",
+        "repo": "secops-8-1-0-5-serve-me",
+        "branch": "main"
+      },
+      "feedback_pr": true,
+      "_exercise_id": "8.1.0.5",
+      "_tests": 13
     }
   ]
 }

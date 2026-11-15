@@ -1,0 +1,26 @@
+{
+  "slug": "8-1-0-4-who-s-there",
+  "classroom": "secops-tashpaz-yizrael",
+  "exercise_id": "8.1.0.4",
+  "points_per_test": 1,
+  "timeout": 300,
+  "tests": [
+    "recv_exact returns exactly n bytes and leaves the rest for the next read",
+    "recv_exact keeps reading when the bytes arrive one at a time",
+    "recv_exact returns None if the connection closes before n bytes arrived",
+    "send_msg sends a 4-byte big-endian length and then the message",
+    "recv_msg returns the message without its length",
+    "recv_msg handles a message that arrives one byte at a time, even the length",
+    "recv_msg separates two messages that arrived in one send",
+    "send_msg and recv_msg carry a 5 MB message whole",
+    "An empty message comes back as b\"\", not as None",
+    "recv_msg returns None when the connection closes between messages",
+    "recv_msg returns None when the connection closes in the middle of a message",
+    "recv_exact returns None if the connection is reset before n bytes arrived",
+    "recv_msg returns None if the connection is reset instead of raising"
+  ],
+  "solution_files": [
+    "protocol.py",
+    "selftest.py"
+  ]
+}
