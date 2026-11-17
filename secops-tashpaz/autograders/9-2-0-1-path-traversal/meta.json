@@ -16,6 +16,7 @@
     "After a refused request the connection keeps working"
   ],
   "solution_files": [
+    "attack.py",
     "client.py",
     "file_utils.py",
     "protocol.py",
