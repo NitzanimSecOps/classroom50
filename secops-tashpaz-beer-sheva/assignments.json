@@ -733,57 +733,6 @@
       "_tests": 5
     },
     {
-      "slug": "8-1-1-1-file-server",
-      "name": "8.1.1.1 File Server",
-      "mode": "individual",
-      "autograder": "default",
-      "runtime": {
-        "runs-on": "ubuntu-latest"
-      },
-      "template": {
-        "owner": "NitzanimSecOps",
-        "repo": "secops-8-1-1-1-file-server",
-        "branch": "main"
-      },
-      "feedback_pr": true,
-      "_exercise_id": "8.1.1.1",
-      "_tests": 14
-    },
-    {
-      "slug": "8-1-1-2-udp-endpoint",
-      "name": "8.1.1.2 UDP Endpoint",
-      "mode": "individual",
-      "autograder": "default",
-      "runtime": {
-        "runs-on": "ubuntu-latest"
-      },
-      "template": {
-        "owner": "NitzanimSecOps",
-        "repo": "secops-8-1-1-2-udp-endpoint",
-        "branch": "main"
-      },
-      "feedback_pr": true,
-      "_exercise_id": "8.1.1.2",
-      "_tests": 11
-    },
-    {
-      "slug": "9-0-0-1-framing",
-      "name": "9.0.0.1 Framing",
-      "mode": "individual",
-      "autograder": "default",
-      "runtime": {
-        "runs-on": "ubuntu-latest"
-      },
-      "template": {
-        "owner": "NitzanimSecOps",
-        "repo": "secops-9-0-0-1-framing",
-        "branch": "main"
-      },
-      "feedback_pr": true,
-      "_exercise_id": "9.0.0.1",
-      "_tests": 18
-    },
-    {
       "slug": "9-0-0-2-remote-commands",
       "name": "9.0.0.2 Remote Commands",
       "mode": "individual",
@@ -816,40 +765,6 @@
       "feedback_pr": true,
       "_exercise_id": "9.0.0.3",
       "_tests": 13
-    },
-    {
-      "slug": "9-0-0-4-multiple-clients",
-      "name": "9.0.0.4 Multiple Clients",
-      "mode": "individual",
-      "autograder": "default",
-      "runtime": {
-        "runs-on": "ubuntu-latest"
-      },
-      "template": {
-        "owner": "NitzanimSecOps",
-        "repo": "secops-9-0-0-4-multiple-clients",
-        "branch": "main"
-      },
-      "feedback_pr": true,
-      "_exercise_id": "9.0.0.4",
-      "_tests": 14
-    },
-    {
-      "slug": "9-0-0-5-parallel-streams",
-      "name": "9.0.0.5 Parallel Streams",
-      "mode": "individual",
-      "autograder": "default",
-      "runtime": {
-        "runs-on": "ubuntu-latest"
-      },
-      "template": {
-        "owner": "NitzanimSecOps",
-        "repo": "secops-9-0-0-5-parallel-streams",
-        "branch": "main"
-      },
-      "feedback_pr": true,
-      "_exercise_id": "9.0.0.5",
-      "_tests": 19
     },
     {
       "slug": "9-2-0-1-path-traversal",
